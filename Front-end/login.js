@@ -60,7 +60,7 @@ function homeScreen(root) {
 				</div>
 				<div class="webos-taskbar-search">
 					<img src="Assets/images/search.png" alt="Search" class="webos-taskbar-search-icon">
-					<span class="webos-taskbar-search-text">Search</span>
+					<input type="text" placeholder="Search..." class="webos-taskbar-search-input">
 					<img src="Assets/images/duck.png" alt="Duck" class="webos-taskbar-duck">
 				</div>
 				<div class="webos-taskbar-item" data-label="Camera">
