@@ -1,3 +1,13 @@
+// ========================
+// Apps Registry - Future-proof app management
+// ========================
+const webosApps = [
+	{ id: 'camera', label: 'Camera', icon: 'Assets/images/camera.png', openFn: 'openCameraWindow' },
+	{ id: 'file-manager', label: 'File Manager', icon: 'Assets/images/file_manager.png', openFn: 'openFileManagerWindow' },
+	{ id: 'settings', label: 'Settings', icon: 'Assets/images/settings.png', openFn: 'openSettingsWindow' },
+	{ id: 'recycle-bin', label: 'Recycle Bin', icon: 'Assets/images/recycle-bin.png', openFn: 'openRecycleBin' }
+];
+
 function webosRenderLogin(root) {
 	root.innerHTML = `
 		<section class="webos-login-screen">
@@ -109,22 +119,48 @@ function homeScreen(root) {
 	updateBatteryStatus();
 	setupVolumeControl();
 	
-	// Setup Settings icon click handler
-	const settingsIcon = document.querySelector('[data-label="Settings"]');
-	if (settingsIcon) {
-		settingsIcon.addEventListener('click', openSettingsWindow);
+	// Setup Windows (Start Menu) icon click handler
+	const windowsIcon = document.querySelector('[data-label="Windows"]');
+	if (windowsIcon) {
+		windowsIcon.addEventListener('click', openStartMenu);
 	}
 
-	// Setup Camera icon click handler
-	const cameraIcon = document.querySelector('[data-label="Camera"]');
-	if (cameraIcon) {
-		cameraIcon.addEventListener('click', openCameraWindow);
-	}
+	// Setup taskbar apps from registry
+	webosApps.forEach(app => {
+		const taskbarIcon = document.querySelector(`[data-label="${app.label}"]`);
+		if (taskbarIcon) {
+			taskbarIcon.addEventListener('click', () => window[app.openFn]());
+		}
+	});
 
-	// Setup File Manager icon click handler
-	const fileManagerIcon = document.querySelector('[data-label="File Manager"]');
-	if (fileManagerIcon) {
-		fileManagerIcon.addEventListener('click', openFileManagerWindow);
+	// Add desktop icons
+	const appsArea = document.querySelector('.webos-apps-area');
+	const desktopContainer = document.createElement('div');
+	desktopContainer.id = 'desktop-icons';
+	desktopContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 20px; padding: 20px;';
+
+	webosApps.forEach(app => {
+		const desktopIcon = document.createElement('div');
+		desktopIcon.style.cssText = 'text-align: center; cursor: pointer; user-select: none;';
+		desktopIcon.innerHTML = `
+			<img src="${app.icon}" style="width: 60px; height: 60px; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+			<div style="font-size: 13px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${app.label}</div>
+		`;
+		desktopIcon.addEventListener('click', () => window[app.openFn]());
+		desktopIcon.addEventListener('dblclick', () => window[app.openFn]());
+		desktopContainer.appendChild(desktopIcon);
+	});
+
+	appsArea.appendChild(desktopContainer);
+
+	// Setup search functionality
+	const searchInput = document.querySelector('.webos-taskbar-search-input');
+	if (searchInput) {
+		searchInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				handleSearch(searchInput.value);
+			}
+		});
 	}
 	
 	// Update time and date every second
@@ -211,6 +247,69 @@ function setupVolumeControl() {
 	});
 }
 
+// ========================
+// Start Menu Functions
+// ========================
+function openStartMenu() {
+	const existingMenu = document.querySelector('.webos-start-menu');
+	if (existingMenu) {
+		existingMenu.remove();
+		return;
+	}
+	
+	const menu = document.createElement('div');
+	menu.className = 'webos-start-menu';
+	menu.style.cssText = 'position: fixed; left: 20px; bottom: 110px; width: 300px; background: #F0F0F0; border: 2px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 9999; display: flex; flex-direction: column;';
+	
+	const title = document.createElement('div');
+	title.style.cssText = 'background: linear-gradient(90deg, #0078D4 0%, #50E6FF 100%); color: white; padding: 12px; font-weight: bold; border-bottom: 1px solid #ddd;';
+	title.innerHTML = 'Apps';
+	menu.appendChild(title);
+	
+	const content = document.createElement('div');
+	content.style.cssText = 'max-height: 400px; overflow-y: auto; padding: 8px;';
+	
+	webosApps.forEach(app => {
+		const item = document.createElement('div');
+		item.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s;';
+		item.innerHTML = `<img src="${app.icon}" style="width: 32px; height: 32px;"><span>${app.label}</span>`;
+		item.addEventListener('mouseenter', () => item.style.background = '#E0E0E0');
+		item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+		item.addEventListener('click', () => {
+			window[app.openFn]();
+			menu.remove();
+		});
+		content.appendChild(item);
+	});
+	
+	menu.appendChild(content);
+	document.body.appendChild(menu);
+	
+	document.addEventListener('click', (e) => {
+		if (!menu.contains(e.target) && !document.querySelector('[data-label="Windows"]')?.contains(e.target)) {
+			menu.remove();
+		}
+	});
+}
+
+function handleSearch(query) {
+	if (!query.trim()) return;
+	
+	const lowerQuery = query.toLowerCase();
+	const matchedApp = webosApps.find(app => app.label.toLowerCase().includes(lowerQuery));
+	
+	if (matchedApp) {
+		window[matchedApp.openFn]();
+		document.querySelector('.webos-taskbar-search-input').value = '';
+	} else {
+		alert(`No app found for "${query}"`);
+	}
+}
+
+function openRecycleBin() {
+	alert('Recycle Bin - empty');
+}
+
 function webosInitLogin() {
 	console.log("successful");
 	const root = document.getElementById("webos-root");
@@ -231,7 +330,7 @@ function openSettingsWindow() {
 	const win = document.createElement('div');
 	win.id = 'settings-window';
 	win.className = 'webos-settings-window';
-	win.style.cssText = 'left: 100px; top: 100px; width: 420px;';
+	win.style.cssText = 'left: 100px; top: 100px; width: 420px; z-index: 100;';
 	win.innerHTML = `
 		<div class="webos-settings-titlebar">
 			<span>Settings</span>
@@ -267,6 +366,8 @@ function makeWindowDraggable(element, titleSelector) {
 	let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 	
 	titlebar.onmousedown = (e) => {
+		maxZIndex++;
+		element.style.zIndex = maxZIndex;
 		pos3 = e.clientX;
 		pos4 = e.clientY;
 		document.onmouseup = () => {
@@ -329,7 +430,7 @@ function openCameraWindow() {
 	const win = document.createElement('div');
 	win.id = 'camera-window';
 	win.className = 'webos-camera-window';
-	win.style.cssText = 'left: 300px; top: 150px; width: 480px; height: 420px;';
+	win.style.cssText = 'left: 300px; top: 150px; width: 480px; height: 420px; z-index: 100;';
 	win.innerHTML = `
 		<div class="webos-camera-titlebar">
 			<span class="webos-camera-titlebar-text">📷 Camera</span>
@@ -411,7 +512,7 @@ function openFileManagerWindow() {
 	const win = document.createElement('div');
 	win.id = 'file-manager-window';
 	win.className = 'webos-file-manager-window';
-	win.style.cssText = 'left: 600px; top: 200px; width: 500px; height: 400px;';
+	win.style.cssText = 'left: 600px; top: 200px; width: 500px; height: 400px; z-index: 100;';
 	
 	// Get folder data from localStorage
 	const folderData = loadFolderData();
@@ -541,43 +642,73 @@ function captureAndSavePhoto() {
 	}, 2000);
 }
 
+function openPhotoViewer(photo) {
+	const viewer = document.createElement('div');
+	viewer.className = 'webos-photo-viewer';
+	viewer.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center;';
+	viewer.innerHTML = `
+		<div style="position: relative; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center;">
+			<img src="${photo.data}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+			<button onclick="this.closest('.webos-photo-viewer').remove()" style="position: absolute; top: 20px; right: 20px; background: #FF6B6B; color: white; border: none; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; font-size: 20px;">×</button>
+			<div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 4px; font-size: 14px;">${photo.name}</div>
+		</div>
+	`;
+	viewer.addEventListener('click', (e) => {
+		if (e.target === viewer) viewer.remove();
+	});
+	document.body.appendChild(viewer);
+}
+
+let maxZIndex = 100;
+function addWindowFocusListener(windowEl) {
+	windowEl.addEventListener('mousedown', () => {
+		maxZIndex++;
+		windowEl.style.zIndex = maxZIndex;
+	});
+}
+
 function openFolder(folderName) {
 	const folderData = loadFolderData();
 	const items = folderData[folderName] || [];
 	
 	const folderWindow = document.createElement('div');
 	folderWindow.className = 'webos-folder-view-window';
-	folderWindow.style.cssText = 'position: absolute; left: 150px; top: 150px; width: 600px; height: 450px; background: #fff; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 1000;';
+	folderWindow.style.cssText = 'position: absolute; left: 150px; top: 150px; width: 600px; height: 450px; background: #fff; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
 	
 	const titlebar = document.createElement('div');
-	titlebar.style.cssText = 'background: linear-gradient(135deg, #43B047 0%, #388E3C 100%); color: white; padding: 10px; font-weight: bold; border-bottom: 2px solid #2e7d32; display: flex; justify-content: space-between; align-items: center;';
+	titlebar.style.cssText = 'background: linear-gradient(135deg, #43B047 0%, #388E3C 100%); color: white; padding: 10px; font-weight: bold; border-bottom: 2px solid #2e7d32; display: flex; justify-content: space-between; align-items: center; cursor: move;';
 	titlebar.innerHTML = `
 		<span>📁 ${folderName.charAt(0).toUpperCase() + folderName.slice(1)}</span>
 		<button onclick="this.closest('.webos-folder-view-window').remove()" style="background: #FF6B6B; color: white; border: none; width: 30px; height: 30px; cursor: pointer; border-radius: 4px;">×</button>
 	`;
 	
 	const content = document.createElement('div');
-	content.style.cssText = 'flex: 1; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px;';
+	content.style.cssText = 'flex: 1; overflow: hidden; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; align-content: flex-start;';
 	
 	if (items.length === 0) {
 		content.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">Folder is empty</p>';
 	} else {
-		items.forEach(item => {
+		items.forEach((item, index) => {
 			const itemEl = document.createElement('div');
-			itemEl.style.cssText = 'text-align: center; cursor: pointer; padding: 8px; border-radius: 4px; border: 1px solid #ddd; transition: all 0.2s;';
+			itemEl.style.cssText = 'text-align: center; cursor: pointer; padding: 8px; border-radius: 4px; border: 1px solid #ddd; transition: all 0.2s; display: flex; flex-direction: column; align-items: center;';
 			itemEl.innerHTML = `
-				<img src="${item.data}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;">
-				<div style="font-size: 11px; word-break: break-all; max-height: 40px; overflow: hidden;">${item.name}</div>
+				<div style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
+					<img src="${item.data}" style="width: 100%; height: 100%; object-fit: cover;">
+				</div>
+				<div style="font-size: 11px; word-break: break-all; max-height: 30px; overflow: hidden; width: 100%;">${item.name}</div>
 			`;
 			itemEl.addEventListener('mouseenter', () => itemEl.style.background = '#f0f0f0');
 			itemEl.addEventListener('mouseleave', () => itemEl.style.background = 'transparent');
+			itemEl.addEventListener('dblclick', () => openPhotoViewer(item));
 			content.appendChild(itemEl);
 		});
 	}
 	
 	folderWindow.appendChild(titlebar);
 	folderWindow.appendChild(content);
-	document.querySelector('.webos-apps-area').appendChild(folderWindow);
+	const appsArea = document.querySelector('.webos-apps-area');
+	appsArea.appendChild(folderWindow);
 	makeWindowDraggable(folderWindow, 'div:first-child');
+	addWindowFocusListener(folderWindow);
 }
  
