@@ -1,0 +1,19 @@
+.webos-home-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: url("Assets/images/Bg.png") center/cover no-repeat;
+}
+
+.webos-apps-area {
+    flex: 1;
+    border: 2px solid #000000;
+}
+
+.webos-taskbar {
+    height: 7vh;
+    /* border: 2px solid #000000; */
+    background-color: rgba(123, 123, 123, 0.6);
+    backdrop-filter: blur(4px);
+    
+}
