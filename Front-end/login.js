@@ -4,6 +4,7 @@
 const webosApps = [
 	{ id: 'camera', label: 'Camera', icon: 'Assets/images/camera.png', openFn: 'openCameraWindow' },
 	{ id: 'file-manager', label: 'File Manager', icon: 'Assets/images/file_manager.png', openFn: 'openFileManagerWindow' },
+	{ id: 'music', label: 'Music', icon: 'Assets/images/Music.png', openFn: 'openMusicWindow' },
 	{ id: 'settings', label: 'Settings', icon: 'Assets/images/settings.png', openFn: 'openSettingsWindow' },
 	{ id: 'recycle-bin', label: 'Recycle Bin', icon: 'Assets/images/recycle-bin.png', openFn: 'openRecycleBin' }
 ];
@@ -80,8 +81,10 @@ function homeScreen(root) {
 				<div class="webos-taskbar-item" data-label="File Manager">
 					<img src="Assets/images/file_manager.png" alt="File Manager" class="webos-taskbar-icon">
 					<span class="webos-taskbar-tooltip">File Manager</span>
-				</div>
-				<div class="webos-taskbar-item" data-label="Recycle Bin">
+				</div>			<div class="webos-taskbar-item" data-label="Music">
+				<img src="Assets/images/Music.png" alt="Music" class="webos-taskbar-icon">
+				<span class="webos-taskbar-tooltip">Music</span>
+			</div>				<div class="webos-taskbar-item" data-label="Recycle Bin">
 					<img src="Assets/images/recycle-bin.png" alt="Recycle Bin" class="webos-taskbar-icon">
 					<span class="webos-taskbar-tooltip">Recycle Bin</span>
 				</div>
@@ -137,14 +140,14 @@ function homeScreen(root) {
 	const appsArea = document.querySelector('.webos-apps-area');
 	const desktopContainer = document.createElement('div');
 	desktopContainer.id = 'desktop-icons';
-	desktopContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 20px; padding: 20px;';
+	desktopContainer.style.cssText = 'display: flex; flex-direction: column; gap: 15px; padding: 20px; width: fit-content; position: absolute; left: 20px; top: 20px;';
 
 	webosApps.forEach(app => {
 		const desktopIcon = document.createElement('div');
 		desktopIcon.style.cssText = 'text-align: center; cursor: pointer; user-select: none;';
 		desktopIcon.innerHTML = `
-			<img src="${app.icon}" style="width: 60px; height: 60px; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-			<div style="font-size: 13px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${app.label}</div>
+			<img src="${app.icon}" style="width: 40px; height: 40px; margin-bottom: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+			<div style="font-size: 11px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); max-width: 80px; word-break: break-word;">${app.label}</div>
 		`;
 		desktopIcon.addEventListener('click', () => window[app.openFn]());
 		desktopIcon.addEventListener('dblclick', () => window[app.openFn]());
@@ -308,6 +311,51 @@ function handleSearch(query) {
 
 function openRecycleBin() {
 	alert('Recycle Bin - empty');
+}
+
+function openMusicWindow() {
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'music-window';
+	win.className = 'webos-music-window';
+	win.style.cssText = 'position: absolute; left: 200px; top: 150px; width: 500px; height: 400px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+	win.innerHTML = `
+		<div style="background: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%); color: white; padding: 12px; font-weight: bold; border-bottom: 2px solid #7B1FA2; display: flex; justify-content: space-between; align-items: center;">
+			<span>🎵 Music Player</span>
+			<div style="display: flex; gap: 4px;">
+				<button class="webos-settings-btn" onclick="minimizeMusicWindow()" style="background: #E91E63; width: 30px; height: 30px;">_</button>
+				<button class="webos-settings-btn" onclick="maximizeMusicWindow()" style="background: #C2185B; width: 30px; height: 30px;">☐</button>
+				<button class="webos-settings-btn" onclick="closeMusicWindow()" style="background: #FF6B6B; width: 30px; height: 30px;">×</button>
+			</div>
+		</div>
+		<div style="flex: 1; padding: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+			<p>Music Player - No songs loaded</p>
+		</div>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, 'div:first-child');
+	addWindowFocusListener(win);
+}
+
+function minimizeMusicWindow() {
+	const win = document.getElementById('music-window');
+	if (win) win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+}
+
+function maximizeMusicWindow() {
+	const win = document.getElementById('music-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText = 'position: absolute; left: 200px; top: 150px; width: 500px; height: 400px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; z-index: 100;';
+	}
+}
+
+function closeMusicWindow() {
+	document.getElementById('music-window')?.remove();
 }
 
 function webosInitLogin() {
