@@ -1,0 +1,143 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+.webos-login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center; /* div ko centre kiya tha isse */
+  padding: 24px;
+}
+
+
+.webos-login-form {
+	--webos-login-input-focus: #2d8cf0;
+	--webos-login-font-color: #323232;
+	--webos-login-font-color-sub: #666;
+	--webos-login-bg-color: #fff;
+	--webos-login-main-color: #323232;
+	padding: 20px;
+	background: var(--webos-login-background);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 20px;
+	border-radius: 5px;
+	    background-color: #e3f2ff;
+    backdrop-filter: blur(4px);
+    box-shadow: -9px 6px 20px 0px #bac9cf;
+}
+
+.webos-login-form > p {
+	font-family: "Dela Gothic One", "Trebuchet MS", sans-serif;
+	color: var(--webos-login-font-color);
+	font-weight: 700;
+	font-size: 20px;
+	margin-bottom: 15px;
+	display: flex;
+	flex-direction: column;
+}
+
+.webos-login-form > p > span {
+	font-family: "Space Mono", "Courier New", monospace;
+	color: var(--webos-login-font-color-sub);
+	font-weight: 600;
+	font-size: 17px;
+}
+
+.webos-login-separator {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+}
+
+.webos-login-separator > div {
+	width: 100px;
+	height: 3px;
+	border-radius: 5px;
+	background-color: var(--webos-login-font-color-sub);
+}
+
+.webos-login-separator > span {
+	color: var(--webos-login-font-color);
+	font-family: "Space Mono", "Courier New", monospace;
+	font-weight: 600;
+}
+
+.webos-login-oauth-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+	padding: 0 15px;
+	width: 250px;
+	height: 40px;
+	border-radius: 5px;
+	border: 2px solid var(--webos-login-main-color);
+	background-color: var(--webos-login-bg-color);
+	box-shadow: 4px 4px var(--webos-login-main-color);
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--webos-login-font-color);
+	cursor: pointer;
+	transition: all 250ms;
+	position: relative;
+	overflow: hidden;
+	z-index: 1;
+}
+
+.webos-login-oauth-button::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 0;
+	background-color: #212121;
+	z-index: -1;
+	box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+	transition: all 250ms;
+}
+
+.webos-login-oauth-button:hover {
+	color: #e8e8e8;
+}
+
+.webos-login-oauth-button:hover::before {
+	width: 100%;
+}
+
+.webos-login-input {
+	width: 250px;
+	height: 40px;
+	border-radius: 5px;
+	border: 2px solid var(--webos-login-main-color);
+	background-color: var(--webos-login-bg-color);
+	box-shadow: 4px 4px var(--webos-login-main-color);
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--webos-login-font-color);
+	padding: 5px 10px;
+	outline: none;
+}
+
+.webos-login-input:focus {
+	border-color: var(--webos-login-input-focus);
+	box-shadow: 0 0 0 2px rgba(45, 140, 240, 0.35);
+}
+
+.webos-login-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+}
