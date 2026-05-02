@@ -19,6 +19,8 @@ function webosRenderLogin(root) {
 // Validate login against backend API
 async function webosValidateLogin(password) {
 	try {
+		console.log("Attempting login with password:", password);
+		
 		const response = await fetch('http://localhost:5000/auth_gate', {
 			method: 'POST',
 			headers: {
@@ -27,15 +29,19 @@ async function webosValidateLogin(password) {
 			body: JSON.stringify({ password: password })
 		});
 
+		console.log("Response status:", response.status);
 		const data = await response.json();
+		console.log("Response data:", data);
 
-		if (data.authorized) {
+		if (data.authorized === true) {
 			// Store token for future API calls
 			localStorage.setItem('webos_token', data.token);
 			localStorage.setItem('webos_ui_config', data.ui_config);
+			console.log("Login successful");
 			return { success: true, token: data.token };
 		} else {
-			return { success: false, error: data.msg || 'Authentication failed' };
+			console.log("Login failed:", data.msg || data.err || 'Unknown error');
+			return { success: false, error: data.msg || data.err || 'Authentication failed' };
 		}
 	} catch (error) {
 		console.error('Auth error:', error);

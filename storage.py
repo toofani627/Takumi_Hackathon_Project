@@ -1,10 +1,12 @@
 # peheli hackathn
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import time
 import logging
 from database import mera_os_ki_files, ek_dm_top_level_secret, get_system_load
 
 app_engine = Flask(__name__)
+CORS(app_engine)  # Enable CORS for all routes
 
 
 def yaha_log_karo(msg):
@@ -23,7 +25,7 @@ def get_desktop_items():
     time.sleep(0.05)
     return jsonify(mera_os_ki_files)
 
-@app_engine.route('/auth_gate', methods=['POST'])
+@app_engine.route('/auth_gate', methods=['POST', 'OPTIONS'])
 def handle_login():
     yaha_log_karo("Login attempt detected at auth_gate")
     
@@ -32,9 +34,11 @@ def handle_login():
         pakdo_data = request.get_json()
     
         if not pakdo_data or 'password' not in pakdo_data:
-            return jsonify({"status": "error", "reason": "Data gayab hai"}), 400
+            yaha_log_karo("Missing password field")
+            return jsonify({"authorized": False, "msg": "Password field missing"}), 400
 
         piche_ka_password = pakdo_data.get('password')
+        yaha_log_karo(f"Received password: {piche_ka_password}, Expected: {ek_dm_top_level_secret}")
 
         if piche_ka_password == ek_dm_top_level_secret:
             yaha_log_karo("Access granted. User is in.")
@@ -42,7 +46,7 @@ def handle_login():
                 "authorized": True,
                 "token": "session_active_992",
                 "ui_config": "windows_default"
-            })
+            }), 200
         else:
             yaha_log_karo("Access denied. Wrong pass.")
             return jsonify({
@@ -53,7 +57,7 @@ def handle_login():
     except Exception as fatal_error:
     
         yaha_log_karo(f"CRITICAL SYSTEM FAILURE: {str(fatal_error)}")
-        return jsonify({"err": "System crash, call bhaiya"}), 500
+        return jsonify({"authorized": False, "err": "System crash, call bhaiya"}), 500
 
 if __name__ == "__main__":
    
