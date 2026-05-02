@@ -28,7 +28,33 @@ function homeScreen(root) {
 	root.innerHTML = `
 		<section class="webos-home-screen">
 			<div class="webos-apps-area"></div>
-			<div class="webos-taskbar"></div>
+			<div class="webos-taskbar">
+				<div class="webos-taskbar-item" data-label="Windows">
+					<img src="Assets/images/windows.png" alt="Windows" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Windows</span>
+				</div>
+				<div class="webos-taskbar-search">
+					<img src="Assets/images/search.png" alt="Search" class="webos-taskbar-search-icon">
+					<span class="webos-taskbar-search-text">Search</span>
+					<img src="Assets/images/duck.png" alt="Duck" class="webos-taskbar-duck">
+				</div>
+				<div class="webos-taskbar-item" data-label="Camera">
+					<img src="Assets/images/camera.png" alt="Camera" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Camera</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="File Manager">
+					<img src="Assets/images/file_manager.png" alt="File Manager" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">File Manager</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="Recycle Bin">
+					<img src="Assets/images/recycle-bin.png" alt="Recycle Bin" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Recycle Bin</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="Settings">
+					<img src="Assets/images/settings.png" alt="Settings" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Settings</span>
+				</div>
+			</div>
 		</section>
 	`;
 }
