@@ -17,9 +17,15 @@ mera_os_ki_files = {
 }
 
 mera_secret_key_honululu = "honululu"
+ek_dm_top_level_secret = "honululu"  # Authentication password
 
 
 def check_pc_ki_garmi_level():
     
     print("Checking if PC is heating up...") 
     return random.uniform(0.1, 0.9)
+
+
+def get_system_load():
+    """Returns system CPU load"""
+    return check_pc_ki_garmi_level()

@@ -16,12 +16,31 @@ function webosRenderLogin(root) {
 	`;
 }
 
-function webosValidateLogin(username, password) {
-	const sampleCredentials = {
-		username: "12",
-		password: "12"
-	};
-	return username === sampleCredentials.username && password === sampleCredentials.password;
+// Validate login against backend API
+async function webosValidateLogin(password) {
+	try {
+		const response = await fetch('http://localhost:5000/auth_gate', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ password: password })
+		});
+
+		const data = await response.json();
+
+		if (data.authorized) {
+			// Store token for future API calls
+			localStorage.setItem('webos_token', data.token);
+			localStorage.setItem('webos_ui_config', data.ui_config);
+			return { success: true, token: data.token };
+		} else {
+			return { success: false, error: data.msg || 'Authentication failed' };
+		}
+	} catch (error) {
+		console.error('Auth error:', error);
+		return { success: false, error: 'Connection error: ' + error.message };
+	}
 }
 
 function homeScreen(root) {
@@ -65,7 +84,41 @@ function webosInitLogin() {
 	if (!root) {
 		return;
 	}
-	homeScreen(root);
+
+	// Check if already authenticated
+	const token = localStorage.getItem('webos_token');
+	if (token) {
+		homeScreen(root);
+		return;
+	}
+
+	// Show login screen
+	webosRenderLogin(root);
+
+	// Handle form submission
+	const form = document.querySelector('.webos-login-form');
+	if (form) {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			
+			const passwordInput = document.querySelector('input[name="password"]');
+			const password = passwordInput.value;
+
+			if (!password) {
+				alert('Please enter a password');
+				return;
+			}
+
+			// Validate against backend
+			const result = await webosValidateLogin(password);
+
+			if (result.success) {
+				homeScreen(root);
+			} else {
+				alert('Login failed: ' + result.error);
+			}
+		});
+	}
 }
 
 window.addEventListener("load", webosInitLogin);
