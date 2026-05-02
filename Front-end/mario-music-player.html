@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="mario-music-player.css">
+</head>
+<body class="mario-theme">
+    <div class="mario-app-container">
+        <!-- Left Panel - Player Controls -->
+        <div class="mario-left-panel">
+            <!-- Folder Picker -->
+            <div class="folder-section">
+                <button id="folderPickerBtn" class="mario-btn mario-btn-primary">
+                    <span>📁</span> Pick Folder
+                </button>
+                <div id="folderStatus" class="folder-status">
+                    <span id="folderName">No folder selected</span>
+                </div>
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="spinner">⏳</div>
+                    <span id="loadingText">Scanning...</span>
+                </div>
+            </div>
+
+            <!-- Album Art / Visualization -->
+            <div class="album-display">
+                <div class="mario-char">🍄</div>
+                <div id="visualization" class="viz-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <!-- Song Info -->
+            <div class="song-info-box">
+                <div id="currentTitle" class="song-title">No Song Playing</div>
+                <div id="currentArtist" class="song-artist">Select a song</div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section">
+                <span id="currentTime" class="time">0:00</span>
+                <input type="range" id="seekBar" class="seek-bar" min="0" max="100" value="0">
+                <span id="duration" class="time">0:00</span>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="controls">
+                <button id="prevBtn" class="mario-btn mario-btn-control">⏮️</button>
+                <button id="playBtn" class="mario-btn mario-btn-play">▶️</button>
+                <button id="nextBtn" class="mario-btn mario-btn-control">⏭️</button>
+            </div>
+
+            <!-- Volume Control -->
+            <div class="volume-section">
+                <span class="vol-icon">🔊</span>
+                <input type="range" id="volumeSlider" class="volume-bar" min="0" max="100" value="70">
+            </div>
+        </div>
+
+        <!-- Right Panel - Playlist -->
+        <div class="mario-right-panel">
+            <div class="library-header">
+                <h2>🎵 Your Library</h2>
+                <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search...">
+            </div>
+            <div id="playlistItems" class="playlist">
+                <div class="empty-state">📂 Pick a folder to start</div>
+            </div>
+            <div class="playlist-footer">
+                <span id="songCount">0 songs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="audioPlayer"></audio>
+
+    <script src="mario-music-player.js"></script>
+</body>
+</html>

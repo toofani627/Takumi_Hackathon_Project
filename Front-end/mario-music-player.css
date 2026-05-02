@@ -1,0 +1,490 @@
+/* Mario Music Player - CSS Styling */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body.mario-theme {
+    background: linear-gradient(135deg, #FF6B35 0%, #FFA500 50%, #FFD93D 100%);
+    font-family: 'Arial Black', Arial, sans-serif;
+    color: #333;
+    overflow: hidden;
+}
+
+/* Main App Container - Full Screen */
+.mario-app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    gap: 0;
+    padding: 0;
+}
+
+/* Left Panel - Player Controls */
+.mario-left-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+    border-right: 6px solid #FFD700;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+}
+
+/* Folder Picker Section */
+.folder-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mario-btn {
+    padding: 10px 15px;
+    font-size: 0.95em;
+    font-weight: bold;
+    border: 4px solid #000;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.mario-btn-primary {
+    background: linear-gradient(to bottom, #FFD700 0%, #FFA500 100%);
+    color: #000;
+    box-shadow: 0 4px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+    width: 100%;
+}
+
+.mario-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mario-btn-primary:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+}
+
+.folder-status {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border: 3px solid #000;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+.folder-status {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 12px;
+    border: 3px solid #000;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+#folderName {
+    font-size: 0.9em;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    background: rgba(255, 215, 0, 0.9);
+    padding: 8px 12px;
+    border: 3px solid #000;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    color: #333;
+    animation: pulse 1s infinite;
+}
+
+.spinner {
+    font-size: 1.2em;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loadingText {
+    font-size: 0.9em;
+}
+
+/* Album Art / Visualization */
+.album-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    min-height: 150px;
+}
+
+.mario-char {
+    font-size: 100px;
+    animation: marioJump 0.6s ease-in-out infinite;
+    filter: drop-shadow(4px 4px 0px #000);
+}
+
+@keyframes marioJump {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.viz-bars {
+    display: flex;
+    gap: 5px;
+    align-items: flex-end;
+    height: 40px;
+}
+
+.bar {
+    width: 5px;
+    background: linear-gradient(to top, #FFD700, #FFA500);
+    border: 2px solid #000;
+    border-radius: 2px;
+    animation: audioBar 0.6s ease-in-out infinite;
+}
+
+.bar:nth-child(1) { animation-delay: 0s; height: 15px; }
+.bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.bar:nth-child(3) { animation-delay: 0.2s; height: 25px; }
+.bar:nth-child(4) { animation-delay: 0.1s; height: 20px; }
+.bar:nth-child(5) { animation-delay: 0s; height: 15px; }
+
+@keyframes audioBar {
+    0%, 100% { height: 10px; }
+    50% { height: 35px; }
+}
+
+/* Song Info Box */
+.song-info-box {
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid #FFD700;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.song-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #FF0000;
+    word-break: break-word;
+}
+
+.song-artist {
+    font-size: 0.85em;
+    color: #0066cc;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* Progress Section */
+.progress-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 6px;
+    border: 3px solid #000;
+}
+
+.time {
+    font-weight: bold;
+    min-width: 35px;
+    text-align: center;
+    color: #333;
+    font-size: 0.85em;
+}
+
+.seek-bar {
+    flex: 1;
+    height: 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    background: #ddd;
+    border: 2px solid #000;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.seek-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #FFD700;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid #000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.seek-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #FFD700;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid #000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Control Buttons */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.mario-btn-control {
+    background: linear-gradient(to bottom, #FFD700 0%, #FFA500 100%);
+    border: 3px solid #000;
+    border-radius: 6px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mario-btn-control:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mario-btn-control:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+}
+
+.mario-btn-play {
+    width: 65px;
+    height: 65px;
+    font-size: 1.8em;
+    background: linear-gradient(to bottom, #00CC00 0%, #008800 100%);
+}
+
+/* Volume Control */
+.volume-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 3px solid #000;
+}
+
+.vol-icon {
+    font-size: 1.2em;
+}
+
+.volume-bar {
+    flex: 1;
+    height: 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    background: #ddd;
+    border: 2px solid #000;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.volume-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #FF0000;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid #000;
+}
+
+.volume-bar::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #FF0000;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid #000;
+}
+
+/* Right Panel - Playlist */
+.mario-right-panel {
+    width: 35%;
+    min-width: 300px;
+    background: linear-gradient(135deg, #0066cc 0%, #0044aa 100%);
+    border-left: 6px solid #FFD700;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.library-header h2 {
+    color: #FFD93D;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0px #000;
+}
+
+.search-box {
+    width: 100%;
+    padding: 8px 10px;
+    border: 3px solid #000;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.search-box::placeholder {
+    color: #999;
+}
+
+.search-box:focus {
+    outline: none;
+    box-shadow: 0 0 8px #FFD700;
+}
+
+/* Playlist Container */
+.playlist {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    color: #FFD93D;
+    padding: 30px 15px;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.playlist-item {
+    background: linear-gradient(to right, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+    border: 3px solid #000;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #000;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+.playlist-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.playlist-item.active {
+    background: linear-gradient(to right, #FF0000, #CC0000);
+    color: #FFD93D;
+    box-shadow: 0 0 12px #FFD700;
+    border-color: #FFD700;
+}
+
+.playlist-item-title {
+    font-size: 0.9em;
+    margin-bottom: 3px;
+    word-break: break-word;
+}
+
+.playlist-item-artist {
+    font-size: 0.75em;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* Playlist Footer */
+.playlist-footer {
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #FFD700;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+#songCount {
+    display: inline-block;
+    background: linear-gradient(to right, #FF0000, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Scrollbar Styling */
+.playlist::-webkit-scrollbar {
+    width: 8px;
+}
+
+.playlist::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.playlist::-webkit-scrollbar-thumb {
+    background: #FFD700;
+    border-radius: 4px;
+    border: 2px solid #000;
+}
+
+.playlist::-webkit-scrollbar-thumb:hover {
+    background: #FFA500;
+}
+
+.mario-left-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mario-left-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.mario-left-panel::-webkit-scrollbar-thumb {
+    background: #FFD700;
+    border-radius: 3px;
+}

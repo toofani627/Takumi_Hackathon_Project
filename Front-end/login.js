@@ -318,19 +318,17 @@ function openMusicWindow() {
 	const win = document.createElement('div');
 	win.id = 'music-window';
 	win.className = 'webos-music-window';
-	win.style.cssText = 'position: absolute; left: 200px; top: 150px; width: 500px; height: 400px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+	win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
 	win.innerHTML = `
 		<div style="background: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%); color: white; padding: 12px; font-weight: bold; border-bottom: 2px solid #7B1FA2; display: flex; justify-content: space-between; align-items: center;">
-			<span>🎵 Music Player</span>
+			<span>🍄 Mario's Music Player 🍄</span>
 			<div style="display: flex; gap: 4px;">
 				<button class="webos-settings-btn" onclick="minimizeMusicWindow()" style="background: #E91E63; width: 30px; height: 30px;">_</button>
 				<button class="webos-settings-btn" onclick="maximizeMusicWindow()" style="background: #C2185B; width: 30px; height: 30px;">☐</button>
 				<button class="webos-settings-btn" onclick="closeMusicWindow()" style="background: #FF6B6B; width: 30px; height: 30px;">×</button>
 			</div>
 		</div>
-		<div style="flex: 1; padding: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
-			<p>Music Player - No songs loaded</p>
-		</div>
+		<iframe id="mario-player-frame" src="mario-music-player.html" style="flex: 1; border: none; border-radius: 0 0 8px 8px; width: 100%;"></iframe>
 	`;
 	appsArea.appendChild(win);
 	makeWindowDraggable(win, 'div:first-child');
@@ -347,7 +345,7 @@ function maximizeMusicWindow() {
 	if (!win) return;
 	if (win.classList.contains('maximized')) {
 		win.classList.remove('maximized');
-		win.style.cssText = 'position: absolute; left: 200px; top: 150px; width: 500px; height: 400px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+		win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
 	} else {
 		win.classList.add('maximized');
 		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; z-index: 100;';
