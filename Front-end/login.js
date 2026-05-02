@@ -109,6 +109,24 @@ function homeScreen(root) {
 	updateBatteryStatus();
 	setupVolumeControl();
 	
+	// Setup Settings icon click handler
+	const settingsIcon = document.querySelector('[data-label="Settings"]');
+	if (settingsIcon) {
+		settingsIcon.addEventListener('click', openSettingsWindow);
+	}
+
+	// Setup Camera icon click handler
+	const cameraIcon = document.querySelector('[data-label="Camera"]');
+	if (cameraIcon) {
+		cameraIcon.addEventListener('click', openCameraWindow);
+	}
+
+	// Setup File Manager icon click handler
+	const fileManagerIcon = document.querySelector('[data-label="File Manager"]');
+	if (fileManagerIcon) {
+		fileManagerIcon.addEventListener('click', openFileManagerWindow);
+	}
+	
 	// Update time and date every second
 	setInterval(updateTimeAndDate, 1000);
 	
@@ -200,41 +218,366 @@ function webosInitLogin() {
 		return;
 	}
 
-	// Check if already authenticated
-	const token = localStorage.getItem('webos_token');
-	if (token) {
-		homeScreen(root);
-		return;
-	}
-
-	// Show login screen
-	webosRenderLogin(root);
-
-	// Handle form submission
-	const form = document.querySelector('.webos-login-form');
-	if (form) {
-		form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			
-			const passwordInput = document.querySelector('input[name="password"]');
-			const password = passwordInput.value;
-
-			if (!password) {
-				alert('Please enter a password');
-				return;
-			}
-
-			// Validate against backend
-			const result = await webosValidateLogin(password);
-
-			if (result.success) {
-				homeScreen(root);
-			} else {
-				alert('Login failed: ' + result.error);
-			}
-		});
-	}
+	// Skip login, go directly to home screen (WEB3 mode)
+	initializeFolderData();
+	homeScreen(root);
 }
 
 window.addEventListener("load", webosInitLogin);
+
+// Settings Window Functions
+function openSettingsWindow() {
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'settings-window';
+	win.className = 'webos-settings-window';
+	win.style.cssText = 'left: 100px; top: 100px; width: 420px;';
+	win.innerHTML = `
+		<div class="webos-settings-titlebar">
+			<span>Settings</span>
+			<div class="webos-settings-buttons">
+				<button class="webos-settings-btn" onclick="minimizeSettingsWindow()">_</button>
+				<button class="webos-settings-btn" onclick="maximizeSettingsWindow()">☐</button>
+				<button class="webos-settings-btn" onclick="closeSettingsWindow()" style="background: #FF6B6B;">×</button>
+			</div>
+		</div>
+		<div class="webos-settings-content">
+			<b>Display Settings</b>
+			<div class="webos-settings-label-group">
+				<label class="webos-settings-label">Brightness</label>
+				<input type="range" min="0" max="100" value="75" class="webos-settings-slider" onchange="updateSliderValue(this)">
+				<span class="webos-settings-value" id="brightness-val">75%</span>
+			</div>
+			<div class="webos-settings-label-group">
+				<label class="webos-settings-label">Resolution</label>
+				<input type="range" min="1" max="5" value="3" class="webos-settings-slider" onchange="updateSliderValue(this)">
+				<span class="webos-settings-value" id="resolution-val">1920x1080</span>
+			</div>
+			<br>
+			<b>Audio Settings</b><br>Volume | Device<br><br>
+			<b>System Settings</b><br>About | Logout
+		</div>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, '.webos-settings-titlebar');
+}
+
+function makeWindowDraggable(element, titleSelector) {
+	const titlebar = element.querySelector(titleSelector);
+	let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+	
+	titlebar.onmousedown = (e) => {
+		pos3 = e.clientX;
+		pos4 = e.clientY;
+		document.onmouseup = () => {
+			document.onmousemove = null;
+		};
+		document.onmousemove = (e) => {
+			pos1 = pos3 - e.clientX;
+			pos2 = pos4 - e.clientY;
+			pos3 = e.clientX;
+			pos4 = e.clientY;
+			element.style.top = (element.offsetTop - pos2) + 'px';
+			element.style.left = (element.offsetLeft - pos1) + 'px';
+		};
+	};
+}
+
+function minimizeSettingsWindow() {
+	const win = document.getElementById('settings-window');
+	if (win) {
+		win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+	}
+}
+
+function maximizeSettingsWindow() {
+	const win = document.getElementById('settings-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText = 'position: absolute; left: 100px; top: 100px; width: 420px; height: auto;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0;';
+	}
+}
+
+function closeSettingsWindow() {
+	document.getElementById('settings-window')?.remove();
+}
+
+function updateSliderValue(slider) {
+	const parent = slider.parentElement;
+	const valueSpan = parent.querySelector('.webos-settings-value');
+	const label = parent.querySelector('.webos-settings-label').textContent.trim();
+	
+	if (label === 'Brightness') {
+		valueSpan.textContent = slider.value + '%';
+	} else if (label === 'Resolution') {
+		const resolutions = ['1024x768', '1280x720', '1920x1080', '2560x1440', '3840x2160'];
+		valueSpan.textContent = resolutions[slider.value - 1];
+	}
+}
+
+// ========================
+// Camera Window Functions
+// ========================
+let cameraStream = null;
+
+function openCameraWindow() {
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'camera-window';
+	win.className = 'webos-camera-window';
+	win.style.cssText = 'left: 300px; top: 150px; width: 480px; height: 420px;';
+	win.innerHTML = `
+		<div class="webos-camera-titlebar">
+			<span class="webos-camera-titlebar-text">📷 Camera</span>
+			<div class="webos-camera-titlebar-buttons">
+				<button class="webos-settings-btn" onclick="minimizeCameraWindow()" style="background: #00BCD4;">_</button>
+				<button class="webos-settings-btn" onclick="maximizeCameraWindow()" style="background: #0097A7;">☐</button>
+				<button class="webos-settings-btn" onclick="closeCameraWindow()" style="background: #FF6B6B;">×</button>
+			</div>
+		</div>
+		<div class="webos-camera-content">
+			<video id="camera-video" width="448" height="230" style="border: 3px solid #000; border-radius: 8px; margin-bottom: 12px; object-fit: cover; background: linear-gradient(135deg, #0288D1 0%, #00BCD4 50%, #00E5FF 100%);" autoplay playsinline></video>
+			<div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
+				<button class="webos-settings-btn" onclick="captureAndSavePhoto()" style="background: #0097A7; flex: 1;">Take Photo</button>
+			</div>
+			<p id="camera-status" style="text-align: center; margin-top: 8px; font-size: 12px;">Initializing camera...</p>
+		</div>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, '.webos-camera-titlebar');
+	
+	initializeCamera();
+}
+
+function initializeCamera() {
+	if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+		navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+			.then(stream => {
+				cameraStream = stream;
+				const video = document.getElementById('camera-video');
+				if (video) {
+					video.srcObject = stream;
+					document.getElementById('camera-status').textContent = 'Camera ready';
+					document.getElementById('camera-status').style.color = '#049CD8';
+				}
+			})
+			.catch(error => {
+				console.error('Camera error:', error);
+				document.getElementById('camera-status').textContent = 'Camera not available';
+				document.getElementById('camera-status').style.color = '#FF6B6B';
+			});
+	} else {
+		document.getElementById('camera-status').textContent = 'Camera not supported';
+		document.getElementById('camera-status').style.color = '#FF6B6B';
+	}
+}
+
+function minimizeCameraWindow() {
+	const win = document.getElementById('camera-window');
+	if (win) {
+		win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+	}
+}
+
+function maximizeCameraWindow() {
+	const win = document.getElementById('camera-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText = 'position: absolute; left: 300px; top: 150px; width: 480px; height: 360px;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0;';
+	}
+}
+
+function closeCameraWindow() {
+	if (cameraStream) {
+		cameraStream.getTracks().forEach(track => track.stop());
+		cameraStream = null;
+	}
+	document.getElementById('camera-window')?.remove();
+}
+
+// ========================
+// File Manager Window Functions
+// ========================
+function openFileManagerWindow() {
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'file-manager-window';
+	win.className = 'webos-file-manager-window';
+	win.style.cssText = 'left: 600px; top: 200px; width: 500px; height: 400px;';
+	
+	// Get folder data from localStorage
+	const folderData = loadFolderData();
+	
+	win.innerHTML = `
+		<div class="webos-file-manager-titlebar">
+			<span class="webos-file-manager-titlebar-text">📁 File Manager</span>
+			<div class="webos-file-manager-titlebar-buttons">
+				<button class="webos-settings-btn" onclick="minimizeFileManagerWindow()" style="background: #43B047;">_</button>
+				<button class="webos-settings-btn" onclick="maximizeFileManagerWindow()" style="background: #388E3C;">☐</button>
+				<button class="webos-settings-btn" onclick="closeFileManagerWindow()" style="background: #FF6B6B;">×</button>
+			</div>
+		</div>
+		<div class="webos-file-manager-content">
+			<div class="webos-folder-item" onclick="openFolder('photos')">
+				<div class="webos-folder-item-icon">📷</div>
+				<div class="webos-folder-item-name">Photos</div>
+				<div class="webos-folder-item-count">${folderData.photos.length} items</div>
+			</div>
+			<div class="webos-folder-item" onclick="openFolder('folder1')">
+				<div class="webos-folder-item-icon">📂</div>
+				<div class="webos-folder-item-name">Folder 1</div>
+				<div class="webos-folder-item-count">${folderData.folder1.length} items</div>
+			</div>
+			<div class="webos-folder-item" onclick="openFolder('folder2')">
+				<div class="webos-folder-item-icon">📂</div>
+				<div class="webos-folder-item-name">Folder 2</div>
+				<div class="webos-folder-item-count">${folderData.folder2.length} items</div>
+			</div>
+			<div class="webos-folder-item" onclick="openFolder('songs')">
+				<div class="webos-folder-item-icon">🎵</div>
+				<div class="webos-folder-item-name">Songs</div>
+				<div class="webos-folder-item-count">${folderData.songs.length} items</div>
+			</div>
+		</div>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, '.webos-file-manager-titlebar');
+}
+
+function minimizeFileManagerWindow() {
+	const win = document.getElementById('file-manager-window');
+	if (win) {
+		win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+	}
+}
+
+function maximizeFileManagerWindow() {
+	const win = document.getElementById('file-manager-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText = 'position: absolute; left: 600px; top: 200px; width: 500px; height: 400px;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0;';
+	}
+}
+
+function closeFileManagerWindow() {
+	document.getElementById('file-manager-window')?.remove();
+}
+
+// ========================
+// localStorage Management Functions
+// ========================
+function initializeFolderData() {
+	const defaultData = {
+		photos: [],
+		folder1: [],
+		folder2: [],
+		songs: []
+	};
+	
+	if (!localStorage.getItem('webos_file_manager')) {
+		localStorage.setItem('webos_file_manager', JSON.stringify(defaultData));
+	}
+}
+
+function loadFolderData() {
+	initializeFolderData();
+	const data = localStorage.getItem('webos_file_manager');
+	return JSON.parse(data || '{"photos":[],"folder1":[],"folder2":[],"songs":[]}');
+}
+
+function saveFolderData(data) {
+	localStorage.setItem('webos_file_manager', JSON.stringify(data));
+}
+
+function addItemToFolder(folderName, item) {
+	const data = loadFolderData();
+	if (data[folderName]) {
+		data[folderName].push(item);
+		saveFolderData(data);
+	}
+}
+
+function captureAndSavePhoto() {
+	const video = document.getElementById('camera-video');
+	if (!video || !video.srcObject) {
+		alert('Camera not ready');
+		return;
+	}
+	
+	// Create hidden canvas to capture video frame
+	const canvas = document.createElement('canvas');
+	canvas.width = 448;
+	canvas.height = 230;
+	const ctx = canvas.getContext('2d');
+	ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+	
+	// Save photo to localStorage
+	const photoData = canvas.toDataURL('image/png');
+	const timestamp = new Date().toLocaleTimeString();
+	const photoName = `Photo_${timestamp}`;
+	
+	addItemToFolder('photos', { name: photoName, data: photoData });
+	
+	// Update status
+	document.getElementById('camera-status').textContent = `✓ Photo saved to Photos folder`;
+	document.getElementById('camera-status').style.color = '#4CAF50';
+	
+	// Reset after 2 seconds
+	setTimeout(() => {
+		document.getElementById('camera-status').textContent = 'Camera ready';
+		document.getElementById('camera-status').style.color = '#049CD8';
+	}, 2000);
+}
+
+function openFolder(folderName) {
+	const folderData = loadFolderData();
+	const items = folderData[folderName] || [];
+	
+	const folderWindow = document.createElement('div');
+	folderWindow.className = 'webos-folder-view-window';
+	folderWindow.style.cssText = 'position: absolute; left: 150px; top: 150px; width: 600px; height: 450px; background: #fff; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 1000;';
+	
+	const titlebar = document.createElement('div');
+	titlebar.style.cssText = 'background: linear-gradient(135deg, #43B047 0%, #388E3C 100%); color: white; padding: 10px; font-weight: bold; border-bottom: 2px solid #2e7d32; display: flex; justify-content: space-between; align-items: center;';
+	titlebar.innerHTML = `
+		<span>📁 ${folderName.charAt(0).toUpperCase() + folderName.slice(1)}</span>
+		<button onclick="this.closest('.webos-folder-view-window').remove()" style="background: #FF6B6B; color: white; border: none; width: 30px; height: 30px; cursor: pointer; border-radius: 4px;">×</button>
+	`;
+	
+	const content = document.createElement('div');
+	content.style.cssText = 'flex: 1; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px;';
+	
+	if (items.length === 0) {
+		content.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">Folder is empty</p>';
+	} else {
+		items.forEach(item => {
+			const itemEl = document.createElement('div');
+			itemEl.style.cssText = 'text-align: center; cursor: pointer; padding: 8px; border-radius: 4px; border: 1px solid #ddd; transition: all 0.2s;';
+			itemEl.innerHTML = `
+				<img src="${item.data}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;">
+				<div style="font-size: 11px; word-break: break-all; max-height: 40px; overflow: hidden;">${item.name}</div>
+			`;
+			itemEl.addEventListener('mouseenter', () => itemEl.style.background = '#f0f0f0');
+			itemEl.addEventListener('mouseleave', () => itemEl.style.background = 'transparent');
+			content.appendChild(itemEl);
+		});
+	}
+	
+	folderWindow.appendChild(titlebar);
+	folderWindow.appendChild(content);
+	document.querySelector('.webos-apps-area').appendChild(folderWindow);
+	makeWindowDraggable(folderWindow, 'div:first-child');
+}
  

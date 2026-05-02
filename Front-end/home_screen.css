@@ -227,3 +227,306 @@
     font-size: 13px;
     color: #ffffff;
 }
+
+/* Settings Window - Mario Pixelated + Kurzgesagt Colors */
+.webos-settings-window {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: #FFD700;
+    border: 4px solid #000;
+    box-shadow: 0 4px 0 #FF6B6B, 0 8px 0 rgba(0,0,0,0.3);
+    font-family: 'Pixelify Sans', cursive;
+    z-index: 1000;
+    min-width: 320px;
+}
+
+.webos-settings-titlebar {
+    background: linear-gradient(90deg, #FF6B6B, #FFA500);
+    border-bottom: 3px solid #000;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.webos-settings-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.webos-settings-btn {
+    width: 32px;
+    height: 32px;
+    background: #4ECDC4;
+    border: 3px solid #000;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s;
+}
+
+.webos-settings-btn:hover {
+    background: #45B7AA;
+}
+
+.webos-settings-btn:active {
+    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.3);
+    transform: translate(1px, 1px);
+}
+
+.webos-settings-content {
+    padding: 16px;
+    background: #FFED4E;
+    flex: 1;
+    overflow: auto;
+    color: #000;
+    line-height: 1.6;
+    font-size: 13px;
+}
+
+.webos-settings-content b {
+    color: #FF6B6B;
+    font-size: 16px;
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.webos-settings-content b:first-child {
+    margin-top: 0;
+}
+
+.webos-settings-label-group {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.webos-settings-label {
+    min-width: 80px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.webos-settings-slider {
+    flex: 1;
+    height: 6px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background: linear-gradient(to right, #FF6B6B, #FFA500);
+    border: 2px solid #000;
+}
+
+.webos-settings-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4ECDC4;
+    border: 2px solid #000;
+    cursor: pointer;
+}
+
+.webos-settings-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #4ECDC4;
+    border: 2px solid #000;
+    cursor: pointer;
+}
+
+.webos-settings-value {
+    min-width: 30px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.webos-settings-window.maximized {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 7vh) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Camera Window Styles */
+.webos-camera-window {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: #E8F4F8;
+    border: 4px solid #000;
+    box-shadow: 0 4px 0 #FF6B6B;
+    z-index: 100;
+    font-family: 'Pixelify Sans', sans-serif;
+}
+
+.webos-camera-titlebar {
+    background: linear-gradient(90deg, #049CD8, #00D4FF);
+    color: #000;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+}
+
+.webos-camera-titlebar-text {
+    flex: 1;
+}
+
+.webos-camera-titlebar-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.webos-camera-content {
+    flex: 1;
+    padding: 16px;
+    background: #E8F4F8;
+    overflow: hidden;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.webos-camera-content::-webkit-scrollbar {
+    display: none;
+}
+
+.webos-camera-content p {
+    font-size: 13px;
+    color: #049CD8;
+    font-weight: 600;
+}
+
+.webos-camera-window.maximized {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 7vh) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* File Manager Window Styles */
+.webos-file-manager-window {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: #F0E8D8;
+    border: 4px solid #000;
+    box-shadow: 0 4px 0 #43B047;
+    z-index: 100;
+    font-family: 'Pixelify Sans', sans-serif;
+}
+
+.webos-file-manager-titlebar {
+    background: linear-gradient(90deg, #43B047, #5FD068);
+    color: #000;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+}
+
+.webos-file-manager-titlebar-text {
+    flex: 1;
+}
+
+.webos-file-manager-titlebar-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.webos-file-manager-content {
+    flex: 1;
+    padding: 16px;
+    background: #F0E8D8;
+    overflow: auto;
+    color: #000;
+}
+
+.webos-file-manager-content::-webkit-scrollbar {
+    display: none;
+}
+
+.webos-file-manager-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.webos-folder-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 6px;
+    background: #FFFACD;
+    border: 2px solid #43B047;
+    border-radius: 3px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.webos-folder-item:hover {
+    background: #FFFF99;
+    box-shadow: inset 0 2px 0 #000;
+}
+
+.webos-folder-item-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background: #FBD000;
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.webos-folder-item-name {
+    flex: 1;
+}
+
+.webos-folder-item-count {
+    font-size: 11px;
+    color: #666;
+}
+
+.webos-file-manager-window.maximized {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 7vh) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
