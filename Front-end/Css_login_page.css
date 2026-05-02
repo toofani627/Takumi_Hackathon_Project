@@ -32,6 +32,7 @@ html, body {
 	justify-content: center;
 	gap: 20px;
 	border-radius: 5px;
+	border: 3px solid #000000;
 	    background-color: #e3f2ff;
     backdrop-filter: blur(4px);
     box-shadow: -9px 6px 20px 0px #bac9cf;
