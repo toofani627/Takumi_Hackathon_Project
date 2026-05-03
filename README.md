@@ -1,209 +1,130 @@
-# 🍄 Mario's Music Player 🍄
+# 🍄 Takumi Hackathon Project - Mario-Themed WebOS Interface
 
-A Mario-themed local music player built with vanilla JavaScript, featuring folder picker functionality, modern UI, and full playback controls.
+A retro-inspired, Mario-themed web operating system featuring a collection of interactive applications built with vanilla JavaScript, HTML5, and CSS3.
 
-## Features
+## 🎮 Project Overview
 
-✨ **Mario-Themed UI**
-- Classic Mario color scheme (Red, Blue, Yellow, Gold)
-- Animated Mario character (🍄) that jumps with the beat
-- Audio visualization bars
-- Retro-inspired button styling with 3D effects
+This project is a creative take on a desktop operating system, featuring a classic Mario aesthetic combined with modern web technologies. The interface provides a fully functional WebOS environment where users can interact with multiple applications, manage user accounts, and enjoy a nostalgic gaming experience—all from their browser.
 
-🎵 **Music Player Features**
-- **Folder Picker**: Select any folder containing audio files from your computer
-- **Recursive Folder Scanning**: Automatically finds all audio files in subfolders
-- **Full Playback Controls**: Play, pause, next, previous, seek, volume
-- **Progress Bar**: Visual progress indicator with seek functionality
-- **Song Search**: Real-time filtering of songs by title or artist
-- **Playlist Display**: Shows all songs from selected folder
-- **Current Song Info**: Displays title and artist while playing
+The project demonstrates advanced vanilla JavaScript techniques, responsive web design, and creative UI/UX implementation without relying on heavy frameworks.
 
-🎧 **Supported Audio Formats**
-- `.mp3` - MP3 Audio
-- `.wav` - WAV Audio
-- `.m4a` - M4A/AAC Audio
-- `.ogg` - Ogg Vorbis
-- `.aac` - AAC Audio
-- `.flac` - FLAC Audio (lossless)
+## 🌟 Core Features
 
-📱 **Responsive Design**
-- Desktop optimized (primary)
-- Tablet friendly
-- Mobile responsive
-- Adapts to all screen sizes
+### WebOS Desktop Environment
+- **Login System**: Custom authentication interface with persistent user accounts
+- **Taskbar Navigation**: Quick access to installed applications
+- **Window Management**: Draggable, resizable application windows
+- **Storage System**: Local data persistence using browser storage
+- **Retro Aesthetic**: Authentic Mario color scheme and typography
 
-## Files Included
+### Integrated Applications
 
-1. **mario-music-player.html** - Main HTML structure
-2. **mario-music-player.css** - Complete styling with Mario theme
-3. **mario-music-player.js** - Vanilla JavaScript player logic
-4. **MARIO_PLAYER_README.md** - This file
+#### 🎵 Mario's Music Player
+A full-featured local music player with:
+- **Folder Picker**: Select and scan music folders recursively
+- **Playback Controls**: Play, pause, next, previous, seek, and volume
+- **Song Search**: Real-time filtering by title or artist
+- **Audio Visualization**: Animated visualizations matching the beat
+- **Multi-Format Support**: MP3, WAV, M4A, OGG, AAC, and FLAC
 
-## How to Use
+#### 🎮 Classic Mario Game
+An interactive platformer game featuring:
+- Multiple levels with progressive difficulty
+- Player character with jump mechanics
+- Enemy AI (Goombas, Koopas)
+- Collectibles (coins, power-ups)
+- Physics-based gameplay
+- Sound effects and background music
 
-### Starting the Music Player
+#### 🧮 Retro Calculator
+A vintage-styled calculator application with:
+- Full arithmetic operations
+- Responsive button layout
+- Period-appropriate UI design
 
-1. **From WebOS Home**: Click the Music app icon in the taskbar or apps menu
-2. **Standalone**: Open `mario-music-player.html` directly in your browser
+## 📁 Project Structure
 
-### Picking a Music Folder
+```
+Front-end/
+├── index.html                 # Main entry point with WebOS shell
+├── mario-theme.css            # Mario color scheme and typography
+├── Css_login_page.css         # Login interface styling
+├── home_screen.css            # Desktop/home screen styling
+├── webos-backend.js           # Core WebOS system logic
+├── webos-storage.js           # Local storage management
+├── login.js                   # Authentication and user management
+├── mario-music-player/        # Music player application
+│   ├── mario-music-player.html
+│   ├── mario-music-player.css
+│   ├── mario-music-player.js
+│   └── MARIO_PLAYER_README.md
+├── mario-game/                # Classic game implementation
+│   ├── index.html
+│   ├── css/
+│   └── js/
+├── Retro-Calculator/          # Calculator application
+│   ├── index.html
+│   ├── script.js
+│   └── styles.css
+└── Assets/                    # Media resources
+    └── images/
+        └── Wallpapers/
+```
 
-1. Click the **📁 Pick Music Folder** button
-2. Select a folder containing audio files
-3. The player will scan the folder and subfolders recursively
-4. All supported audio formats will be added to your library
+## 🚀 How to Use
 
-### Playing Music
+### Getting Started
 
-1. **Play/Pause**: Click the green play button (▶️/⏸️)
-2. **Next Song**: Click the next button (⏭️)
-3. **Previous Song**: Click the previous button (⏮️)
-4. **Seek**: Click anywhere on the progress bar to jump to that time
-5. **Volume**: Adjust with the volume slider (🔊)
-
-### Searching Songs
-
-- Type in the search box to filter songs by:
-  - Song title
-  - Artist name
-- Results update in real-time
-- Click any song in the list to play it
-
-## Technical Details
-
-### API Used
-- **File System Access API**: For secure folder and file access
-- **HTML5 Audio API**: For playback control
-- **Vanilla JavaScript**: No frameworks or dependencies
+1. **Open the Application**: Launch `Front-end/index.html` in a Chrome-based browser
+2. **Create an Account**: Register with a username and password on the login screen
+3. **Access Applications**: Click app icons in the taskbar to launch integrated applications
 
 ### Browser Requirements
-- Chrome/Chromium browsers (Recommended)
-- Edge, Brave, Opera (Chromium-based)
-- HTTPS or localhost (File System Access API requirement)
 
-### File Naming Convention
-For better artist detection, use this naming format:
-```
-Artist Name - Song Title.mp3
-Song Title.mp3
-```
+- **Primary**: Chrome, Edge, Brave, or Opera (Chromium-based)
+- **Minimum**: HTTPS or localhost for File System Access API (Music Player)
+- **Recommended Resolution**: 1024x768 or higher
 
-The player will extract the artist name from the filename (everything before the dash).
+### Features by Application
 
-## Features Breakdown
+- **Music Player**: Click folder picker to scan your music library
+- **Game**: Use arrow keys to move and spacebar to jump
+- **Calculator**: Standard calculator operations with numeric keypad
 
-### 1. Folder Picker
-- Uses modern File System Access API
-- Secure: User must manually grant permission
-- Recursive scanning of subfolders
-- Supports all audio formats
+## 💻 Technology Stack
 
-### 2. Playlist Management
-- Automatically organized by filename
-- Artist metadata extracted from filename
-- Quick search/filter functionality
-- Shows song count
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript (no frameworks)
+- **APIs**: File System Access API, HTML5 Audio API, LocalStorage
+- **Animation**: GSAP (GreenSock Animation Platform)
+- **Architecture**: MVC-inspired pattern with modular components
 
-### 3. Player Controls
-- **Play/Pause Toggle**: One-click play control
-- **Navigation**: Move through playlist smoothly
-- **Progress Seeking**: Click to jump to any position
-- **Volume Control**: Smooth volume adjustment with visual feedback
+## 🔒 Security & Privacy
 
-### 4. Visual Feedback
-- Animated Mario character (jumping 🍄)
-- Audio visualization bars
-- Active song highlighting in playlist
-- Real-time progress indication
-- Time display (current/total duration)
+- All files remain on your device
+- No external data transmission
+- Permission-based file system access
+- No tracking or analytics
 
-## Installation
+## ✨ Key Achievements
 
-### Option 1: Standalone Use
-1. Save `mario-music-player.html`, `mario-music-player.css`, and `mario-music-player.js` in same folder
-2. Open `mario-music-player.html` in a Chrome browser
-3. Click "Pick Music Folder" to get started
+- ✅ Fully functional multi-app environment
+- ✅ Persistent user data management
+- ✅ Advanced music scanning and playback
+- ✅ Interactive game with physics
+- ✅ Responsive retro UI design
+- ✅ Zero dependencies beyond GSAP
 
-### Option 2: Integrated with WebOS UI
-Already integrated into the WebOS-style interface:
-1. The Music app in the taskbar opens the Mario Music Player
-2. It runs in an iframe within the WebOS window manager
-3. Fully draggable and resizable
+## 🎯 Future Enhancements
 
-## Keyboard Tips
-
-- **Space** (in browser): Toggle play/pause
-- **Arrow Keys**: Navigate volume/progress (browser dependent)
-- **Tab**: Focus navigation through controls
-
-## Troubleshooting
-
-### Folder Picker Not Working
-- Ensure you're using Chrome or Chromium-based browser
-- Check that you're on `localhost` or `https://` (not plain `http://`)
-- Look for browser permission prompts
-
-### No Songs Showing
-- Verify folder contains supported audio formats
-- Check file permissions (should be readable)
-- Try opening browser DevTools console for errors
-- Ensure files aren't in restricted system folders
-
-### Audio Not Playing
-- Check browser volume isn't muted
-- Verify file format is supported
-- Try a different audio file
-- Check browser console for error messages
-
-## Browser Compatibility
-
-| Browser | Support | Notes |
-|---------|---------|-------|
-| Chrome | ✅ Full | Recommended, all features work |
-| Edge | ✅ Full | Chromium-based, all features |
-| Firefox | ⚠️ Partial | File System API not supported |
-| Safari | ⚠️ Partial | File System API not supported |
-| Mobile | ⚠️ Limited | File System API varies by platform |
-
-## Performance Notes
-
-- **Fast Loading**: Lightweight (~20KB combined)
-- **Efficient Scanning**: Quick folder traversal even with large libraries
-- **Smooth Playback**: Native HTML5 audio performance
-- **Low Memory**: Single audio context, minimal DOM elements
-- **Responsive UI**: 60fps animations and interactions
-
-## Security & Privacy
-
-- 🔒 **No Data Upload**: All files stay on your device
-- 🔐 **Permission-Based**: You control folder access
-- 🚫 **No Tracking**: No analytics or external requests
-- 📁 **Local Only**: Works completely offline after first load
-
-## Future Enhancements
-
-Possible features for future versions:
-- Shuffle and repeat modes
-- Playlist creation and saving
-- Theme customization
-- Keyboard shortcuts display
-- Song duration caching
-- Now Playing notifications
-- Equalizer controls
-
-## Credits
-
-- **Original UI Inspiration**: Online Local Media Player (toofani627)
-- **Mario Theme**: Classic Nintendo styling adapted for web
-- **Technology**: HTML5, CSS3, Vanilla JavaScript
-
-## License
-
-Open source - Feel free to modify and use as needed!
+- Multi-user save states for games
+- Customizable themes and wallpapers
+- Audio equalizer for music player
+- Game level editor
+- System notifications
+- File explorer integration
 
 ---
 
-**Enjoy your music! 🍄🎵**
+**Project Status**: Complete hackathon submission featuring a fully functional WebOS environment with multiple interactive applications.
 
-Let's-a-go! 🍄
+**Let's-a-go! 🍄🎮**
