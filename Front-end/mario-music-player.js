@@ -1,6 +1,61 @@
 // Mario Music Player — Web Worker scan + WebOS lifecycle + Spotify-style seek (drag-safe scrubbing)
 
 const MARIO_SNAPSHOT_KEY = 'webos_mario_player_snapshot';
+const WEBOS_MUSIC_DB = 'webos_music_library_v1';
+const WEBOS_MUSIC_STORE = 'tracks';
+
+function openWebosMusicDB() {
+	return new Promise((resolve, reject) => {
+		const req = indexedDB.open(WEBOS_MUSIC_DB, 1);
+		req.onerror = () => reject(req.error);
+		req.onsuccess = () => resolve(req.result);
+		req.onupgradeneeded = (e) => {
+			const db = e.target.result;
+			if (!db.objectStoreNames.contains(WEBOS_MUSIC_STORE)) {
+				db.createObjectStore(WEBOS_MUSIC_STORE, { keyPath: 'id', autoIncrement: true });
+			}
+		};
+	});
+}
+
+async function webosMusicPersistPlaylist(playlist) {
+	if (!playlist || !playlist.length) return;
+	const db = await openWebosMusicDB();
+	const payloads = await Promise.all(
+		playlist.map(async (song) => ({
+			name: song.name,
+			artist: song.artist,
+			mimeType: song.file.type || 'audio/mpeg',
+			fileName: song.file.name,
+			buffer: await song.file.arrayBuffer()
+		}))
+	);
+	await new Promise((resolve, reject) => {
+		const tx = db.transaction(WEBOS_MUSIC_STORE, 'readwrite');
+		const store = tx.objectStore(WEBOS_MUSIC_STORE);
+		store.clear();
+		for (const p of payloads) {
+			store.add(p);
+		}
+		tx.oncomplete = () => resolve();
+		tx.onerror = () => reject(tx.error);
+	});
+}
+
+async function webosMusicLoadPlaylist() {
+	const db = await openWebosMusicDB();
+	const rows = await new Promise((resolve, reject) => {
+		const tx = db.transaction(WEBOS_MUSIC_STORE, 'readonly');
+		const q = tx.objectStore(WEBOS_MUSIC_STORE).getAll();
+		q.onsuccess = () => resolve(q.result || []);
+		q.onerror = () => reject(q.error);
+	});
+	return rows.map((r) => ({
+		name: r.name,
+		artist: r.artist,
+		file: new File([r.buffer], r.fileName, { type: r.mimeType || 'audio/mpeg' })
+	}));
+}
 
 class MarioMusicPlayer {
     constructor() {
@@ -83,6 +138,21 @@ class MarioMusicPlayer {
         this.updatePlayBtn();
 
         window.addEventListener('message', (e) => this.onParentMessage(e));
+
+        void this.restorePersistedLibrary();
+    }
+
+    async restorePersistedLibrary() {
+        try {
+            const rows = await webosMusicLoadPlaylist();
+            if (!rows.length) return;
+            this.playlist = rows;
+            this.els.folderName.textContent = 'Saved library';
+            this.filter('');
+            this.updateSeekDisabled();
+        } catch (e) {
+            console.warn('Music library restore skipped', e);
+        }
     }
 
     /**
@@ -251,6 +321,7 @@ class MarioMusicPlayer {
             this.showLoading(false);
             this.scanning = false;
             this.updateSeekDisabled();
+            webosMusicPersistPlaylist(this.playlist).catch((err) => console.warn('Persist music failed', err));
         } else if (type === 'error') {
             console.error('Worker error:', message);
             this.scanning = false;

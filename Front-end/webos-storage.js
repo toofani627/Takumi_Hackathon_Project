@@ -22,8 +22,11 @@ const WebOSDisk = (function () {
 				currentIndex: 0,
 				currentTime: 0,
 				searchQuery: ''
-			}
+			},
+			notepad: { content: '', updatedAt: 0 },
+			browser: { lastUrl: '' }
 		},
+		auth: { lastUsername: '' },
 		fileManager: null
 	});
 
@@ -154,11 +157,106 @@ const WebOSDisk = (function () {
 		save(deepMerge(load(), updates));
 	}
 
+	function getNotepadContent() {
+		const d = load();
+		return d.apps && d.apps.notepad ? d.apps.notepad.content || '' : '';
+	}
+
+	function setNotepadContent(text) {
+		const disk = load();
+		disk.apps = disk.apps || {};
+		disk.apps.notepad = { ...(disk.apps.notepad || {}), content: String(text ?? ''), updatedAt: Date.now() };
+		save(disk);
+	}
+
+	function getBrowserLastUrl() {
+		const d = load();
+		return (d.apps && d.apps.browser && d.apps.browser.lastUrl) || '';
+	}
+
+	function setBrowserLastUrl(url) {
+		const disk = load();
+		disk.apps = disk.apps || {};
+		disk.apps.browser = { ...(disk.apps.browser || {}), lastUrl: String(url ?? '') };
+		save(disk);
+	}
+
+	function ensureFileManagerShape(fm) {
+		if (!fm || typeof fm !== 'object') {
+			return { photos: [], folder1: [], folder2: [], songs: [], documents: [] };
+		}
+		return {
+			photos: Array.isArray(fm.photos) ? fm.photos : [],
+			folder1: Array.isArray(fm.folder1) ? fm.folder1 : [],
+			folder2: Array.isArray(fm.folder2) ? fm.folder2 : [],
+			songs: Array.isArray(fm.songs) ? fm.songs : [],
+			documents: Array.isArray(fm.documents) ? fm.documents : []
+		};
+	}
+
+	function syncLegacyFileManager(fm) {
+		try {
+			localStorage.setItem(LEGACY_FILE_MGR, JSON.stringify(ensureFileManagerShape(fm)));
+		} catch (_) {}
+	}
+
+	function getNotepadDocument(id) {
+		const fm = ensureFileManagerShape(load().fileManager);
+		return fm.documents.find((d) => d.id === id) || null;
+	}
+
+	function listNotepadDocuments() {
+		return ensureFileManagerShape(load().fileManager).documents.slice();
+	}
+
+	function saveNotepadDocument(name, content, existingId) {
+		const disk = load();
+		const fm = ensureFileManagerShape(disk.fileManager);
+		const cleanName = String(name || '').trim() || 'Untitled.txt';
+		const text = String(content ?? '');
+
+		if (existingId) {
+			const i = fm.documents.findIndex((d) => d.id === existingId);
+			if (i >= 0) {
+				fm.documents[i] = { ...fm.documents[i], name: cleanName, content: text, updatedAt: Date.now() };
+				disk.fileManager = fm;
+				save(disk);
+				syncLegacyFileManager(fm);
+				return existingId;
+			}
+		}
+		const id = 'doc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
+		fm.documents.push({ id, name: cleanName, content: text, updatedAt: Date.now() });
+		disk.fileManager = fm;
+		save(disk);
+		syncLegacyFileManager(fm);
+		return id;
+	}
+
+	function updateNotepadDocumentContent(id, text) {
+		const disk = load();
+		const fm = ensureFileManagerShape(disk.fileManager);
+		const i = fm.documents.findIndex((d) => d.id === id);
+		if (i < 0) return;
+		fm.documents[i] = { ...fm.documents[i], content: String(text ?? ''), updatedAt: Date.now() };
+		disk.fileManager = fm;
+		save(disk);
+		syncLegacyFileManager(fm);
+	}
+
 	migrateLegacy();
 
 	return {
 		load,
 		patch,
+		getNotepadContent,
+		setNotepadContent,
+		getNotepadDocument,
+		listNotepadDocuments,
+		saveNotepadDocument,
+		updateNotepadDocumentContent,
+		getBrowserLastUrl,
+		setBrowserLastUrl,
 		setWallpaperBuiltin,
 		setWallpaperCustomDataUrl,
 		setBrightness,
