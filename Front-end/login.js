@@ -6,9 +6,28 @@ const webosApps = [
 	{ id: 'file-manager', label: 'File Manager', icon: 'Assets/images/file_manager.png', openFn: 'openFileManagerWindow' },
 	{ id: 'music', label: 'Music', icon: 'Assets/images/Music.png', openFn: 'openMusicWindow' },
 	{ id: 'calculator', label: 'Calculator', icon: 'Assets/images/Calculator.png', openFn: 'openCalculatorWindow' },
+	{
+		id: 'mario',
+		label: 'Mario Bros',
+		icon: 'Assets/images/Game.png',
+		openFn: 'openMarioGameWindow',
+		searchTokens: ['mario', 'bros', 'brothers', 'nes', 'jumpman', 'game']
+	},
 	{ id: 'settings', label: 'Settings', icon: 'Assets/images/settings.png', openFn: 'openSettingsWindow' },
 	{ id: 'recycle-bin', label: 'Recycle Bin', icon: 'Assets/images/recycle-bin.png', openFn: 'openRecycleBin' }
 ];
+
+/** Lowercase haystack per app for taskbar Search + Start menu */
+function webosAppSearchBlob(app) {
+	const parts = [app.label.replace(/\s+/g, ' '), ...(app.searchTokens || [])];
+	return parts.join(' ').toLowerCase();
+}
+
+function webosMatchingApps(query) {
+	const q = query.trim().toLowerCase();
+	if (!q) return webosApps.slice();
+	return webosApps.filter((app) => webosAppSearchBlob(app).includes(q));
+}
 
 /** URL-encode each path segment for img src / CSS */
 function webosAssetUrl(path) {
@@ -44,7 +63,7 @@ function homeScreen(root) {
 				</div>
 				<div class="webos-taskbar-search">
 					<img src="Assets/images/search.png" alt="Search" class="webos-taskbar-search-icon">
-					<input type="text" placeholder="Search..." class="webos-taskbar-search-input">
+					<input type="text" placeholder="Search apps, press Enter" class="webos-taskbar-search-input">
 					<img src="Assets/images/duck.png" alt="Duck" class="webos-taskbar-duck">
 				</div>
 				<div class="webos-taskbar-item" data-label="Camera">
@@ -62,6 +81,10 @@ function homeScreen(root) {
 				<div class="webos-taskbar-item" data-label="Calculator">
 					<img src="Assets/images/Calculator.png" alt="Calculator" class="webos-taskbar-icon">
 					<span class="webos-taskbar-tooltip">Calculator</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="Mario Bros">
+					<img src="Assets/images/Game.png" alt="Mario Bros" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Mario Bros</span>
 				</div>
 				<div class="webos-taskbar-item" data-label="Recycle Bin">
 					<img src="Assets/images/recycle-bin.png" alt="Recycle Bin" class="webos-taskbar-icon">
@@ -135,7 +158,7 @@ function homeScreen(root) {
 
 	appsArea.appendChild(desktopContainer);
 
-	// Setup search functionality
+	// Setup search functionality (matches Windows-style app search by name / keyword)
 	const searchInput = document.querySelector('.webos-taskbar-search-input');
 	if (searchInput) {
 		searchInput.addEventListener('keydown', (e) => {
@@ -242,23 +265,71 @@ function openStartMenu() {
 		existingMenu.remove();
 		return;
 	}
-	
+
 	const menu = document.createElement('div');
 	menu.className = 'webos-start-menu';
-	menu.style.cssText = 'position: fixed; left: 20px; bottom: 110px; width: 300px; background: #FFCC99; border: 3px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; z-index: 9999; display: flex; flex-direction: column;';
-	
-	const title = document.createElement('div');
-	title.style.cssText = 'font-family: \"Press Start 2P\", monospace; background: #E52521; color: #FBD000; padding: 12px; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000;';
-	title.textContent = 'Apps';
-	menu.appendChild(title);
-	
+	menu.style.cssText =
+		'position: fixed; left: 20px; bottom: 110px; width: 320px; max-width: 92vw; background: #FFCC99; border: 3px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; z-index: 9999; display: flex; flex-direction: column;';
+
+	const header = document.createElement('div');
+	header.style.cssText =
+		'font-family: \"Press Start 2P\", monospace; background: #E52521; color: #FBD000; padding: 10px 12px 8px; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000;';
+	header.textContent = 'Apps';
+	menu.appendChild(header);
+
+	const searchWrap = document.createElement('div');
+	searchWrap.style.cssText = 'padding: 10px 10px 4px; background: #FFCC99; border-bottom: 2px dashed #C84C0C;';
+
+	const menuSearch = document.createElement('input');
+	menuSearch.type = 'search';
+	menuSearch.placeholder = 'Search apps';
+	menuSearch.setAttribute('aria-label', 'Search apps');
+	menuSearch.style.cssText =
+		'width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 14px; font-family: Pixelify Sans, sans-serif; border: 3px solid #000; border-radius: 4px; background: #fff; outline: none;';
+	searchWrap.appendChild(menuSearch);
+	menu.appendChild(searchWrap);
+
 	const content = document.createElement('div');
-	content.style.cssText = 'max-height: 400px; overflow-y: auto; padding: 8px;';
-	
-	webosApps.forEach(app => {
+	content.className = 'webos-start-menu-list';
+	content.style.cssText = 'max-height: 360px; overflow-y: auto; padding: 8px;';
+
+	const applyFilter = () => {
+		const q = menuSearch.value.trim().toLowerCase();
+		Array.from(content.querySelectorAll('[data-search-blob]')).forEach((row) => {
+			const blob = row.getAttribute('data-search-blob') || '';
+			row.style.display = !q || blob.includes(q) ? 'flex' : 'none';
+		});
+	};
+
+	menuSearch.addEventListener('input', applyFilter);
+
+	menuSearch.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			let rows = Array.from(content.querySelectorAll('[data-search-blob]')).filter((r) => r.style.display !== 'none');
+			if (!rows.length) {
+				const byName = webosMatchingApps(menuSearch.value);
+				if (byName[0]) {
+					window[byName[0].openFn]();
+					menu.remove();
+				}
+				return;
+			}
+			const openFn = rows[0].getAttribute('data-open-fn');
+			if (openFn) {
+				window[openFn]();
+				menu.remove();
+			}
+		}
+	});
+
+	webosApps.forEach((app) => {
 		const item = document.createElement('div');
-		item.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s;';
-		item.innerHTML = `<img src="${app.icon}" style="width: 32px; height: 32px;"><span>${app.label}</span>`;
+		item.className = 'webos-start-item';
+		item.setAttribute('data-search-blob', webosAppSearchBlob(app));
+		item.setAttribute('data-open-fn', app.openFn);
+		item.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 8px; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
+		item.innerHTML = `<img src="${app.icon}" alt="" style="width: 32px; height: 32px;"><span style="font-size:14px;">${app.label}</span>`;
 		item.addEventListener('mouseenter', () => (item.style.background = '#FBD000'));
 		item.addEventListener('mouseleave', () => (item.style.background = 'transparent'));
 		item.addEventListener('click', () => {
@@ -267,29 +338,40 @@ function openStartMenu() {
 		});
 		content.appendChild(item);
 	});
-	
+
 	menu.appendChild(content);
 	document.body.appendChild(menu);
-	
-	document.addEventListener('click', (e) => {
+
+	queueMicrotask(() => {
+		menuSearch.focus();
+		applyFilter();
+	});
+
+	const onDocClick = (e) => {
 		if (!menu.contains(e.target) && !document.querySelector('[data-label="Windows"]')?.contains(e.target)) {
 			menu.remove();
+			document.removeEventListener('click', onDocClick);
 		}
-	});
+	};
+	setTimeout(() => document.addEventListener('click', onDocClick), 0);
 }
 
 function handleSearch(query) {
-	if (!query.trim()) return;
-	
-	const lowerQuery = query.toLowerCase();
-	const matchedApp = webosApps.find(app => app.label.toLowerCase().includes(lowerQuery));
-	
-	if (matchedApp) {
-		window[matchedApp.openFn]();
-		document.querySelector('.webos-taskbar-search-input').value = '';
-	} else {
-		alert(`No app found for "${query}"`);
+	const raw = typeof query === 'string' ? query : '';
+	if (!raw.trim()) return;
+
+	const matches = webosMatchingApps(raw);
+	const inputEl = document.querySelector('.webos-taskbar-search-input');
+
+	if (!matches.length) {
+		if (raw.trim()) {
+			alert(`No app found for "${raw.trim()}"`);
+		}
+		return;
 	}
+
+	window[matches[0].openFn]();
+	if (inputEl) inputEl.value = '';
 }
 
 function openRecycleBin() {
@@ -313,9 +395,9 @@ function openMusicWindow() {
 	win.className = 'webos-music-window';
 	win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #FFCC99; border: 4px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; display: flex; flex-direction: column; z-index: 100;';
 	win.innerHTML = `
-		<div style="background: #E52521; color: #FBD000; padding: 12px; font-family: \"Press Start 2P\", monospace; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: center;">
-			<span>Mario Music</span>
-			<div style="display: flex; gap: 4px;">
+		<div class="webos-chrome-titlebar" style="background: #E52521; color: #FBD000; padding: 12px; font-family: \"Press Start 2P\", monospace; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000; flex-shrink: 0; cursor: move;">
+			<span class="webos-chrome-title-text">Mario Music</span>
+			<div class="webos-chrome-buttons">
 				<button class="webos-settings-btn" onclick="minimizeMusicWindow()" style="background: #049CD8; width: 30px; height: 30px;" title="Minimize">_</button>
 				<button class="webos-settings-btn" onclick="maximizeMusicWindow()" style="background: #049CD8; width: 30px; height: 30px;" title="Maximize">[]</button>
 				<button class="webos-settings-btn" onclick="closeMusicWindow()" style="background: #F83800; width: 30px; height: 30px;" title="Close">x</button>
@@ -370,9 +452,9 @@ function openCalculatorWindow() {
 	win.style.cssText =
 		'position: absolute; left: 130px; top: 90px; width: 420px; height: 620px; min-width: 360px; background: #000000; border: 4px solid #049CD8; border-radius: 4px; box-shadow: 6px 6px 0 #AAAAAA; display: flex; flex-direction: column; z-index: 100; overflow: hidden;';
 	win.innerHTML = `
-		<div style="background: #049CD8; color: #000000; padding: 10px 12px; font-family: \"Press Start 2P\", monospace; font-size: 8px; border-bottom: 3px solid #000000; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; cursor: move;">
-			<span>Retro Calculator</span>
-			<div style="display: flex; gap: 4px;">
+		<div class="webos-chrome-titlebar" style="background: #049CD8; color: #000000; padding: 10px 12px; font-family: \"Press Start 2P\", monospace; font-size: 8px; border-bottom: 3px solid #000000; flex-shrink: 0; cursor: move;">
+			<span class="webos-chrome-title-text">Retro Calculator</span>
+			<div class="webos-chrome-buttons">
 				<button type="button" class="webos-settings-btn" onclick="minimizeCalculatorWindow()" style="background: #43B047; width: 30px; height: 30px; color: #000; border: 2px solid #000;">_</button>
 				<button type="button" class="webos-settings-btn" onclick="maximizeCalculatorWindow()" style="background: #43B047; width: 30px; height: 30px; color: #000; border: 2px solid #000;">[]</button>
 				<button type="button" class="webos-settings-btn" onclick="closeCalculatorWindow()" style="background: #F83800; width: 30px; height: 30px; color: #000; border: 2px solid #000;">x</button>
@@ -406,6 +488,60 @@ function maximizeCalculatorWindow() {
 
 function closeCalculatorWindow() {
 	document.getElementById('calculator-window')?.remove();
+}
+
+function openMarioGameWindow() {
+	const existing = document.getElementById('mario-game-window');
+	if (existing) {
+		existing.style.display = 'flex';
+		maxZIndex++;
+		existing.style.zIndex = maxZIndex;
+		return;
+	}
+
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'mario-game-window';
+	win.className = 'webos-mario-game-window';
+	win.style.cssText =
+		'position: absolute; left: 40px; top: 56px; width: min(800px, 94vw); height: min(740px, calc(94vh - 8vh)); min-width: 400px; min-height: 480px; background: #000; border: 4px solid #E52521; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; display: flex; flex-direction: column; z-index: 100; overflow: hidden;';
+	win.innerHTML = `
+		<div class="webos-chrome-titlebar" style="background: #E52521; color: #FBD000; padding: 10px 12px; font-family: \"Press Start 2P\", monospace; font-size: 8px; font-weight: 400; border-bottom: 3px solid #000; flex-shrink: 0; cursor: move;">
+			<span class="webos-chrome-title-text">Mario Bros</span>
+			<div class="webos-chrome-buttons">
+				<button type="button" class="webos-settings-btn" onclick="minimizeMarioGameWindow()" style="background: #049CD8; width: 30px; height: 30px; color: #000; border: 2px solid #000;">_</button>
+				<button type="button" class="webos-settings-btn" onclick="maximizeMarioGameWindow()" style="background: #049CD8; width: 30px; height: 30px; color: #000; border: 2px solid #000;">[]</button>
+				<button type="button" class="webos-settings-btn" onclick="closeMarioGameWindow()" style="background: #F83800; width: 30px; height: 30px; color: #000; border: 2px solid #000;">x</button>
+			</div>
+		</div>
+		<iframe id="mario-game-frame" src="mario-game/index.html" style="flex: 1; border: none; width: 100%; min-height: 0; background: #000;" title="Mario Bros"></iframe>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, 'div:first-child');
+	addWindowFocusListener(win);
+}
+
+function minimizeMarioGameWindow() {
+	const win = document.getElementById('mario-game-window');
+	if (win) win.style.display = 'none';
+}
+
+function maximizeMarioGameWindow() {
+	const win = document.getElementById('mario-game-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText =
+			'position: absolute; left: 40px; top: 56px; width: min(800px, 94vw); height: min(740px, calc(94vh - 8vh)); min-width: 400px; min-height: 480px; background: #000; border: 4px solid #E52521; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; display: flex; flex-direction: column; z-index: 100; overflow: hidden;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText =
+			'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; z-index: 100; overflow: hidden; background: #000;';
+	}
+}
+
+function closeMarioGameWindow() {
+	document.getElementById('mario-game-window')?.remove();
 }
 
 function webosInitLogin() {
