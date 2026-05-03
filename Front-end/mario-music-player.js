@@ -1,17 +1,18 @@
-// Mario Music Player - Using Web Worker for folder scanning
+// Mario Music Player — Web Worker scan + WebOS lifecycle + Spotify-style seek (drag-safe scrubbing)
+
+const MARIO_SNAPSHOT_KEY = 'webos_mario_player_snapshot';
 
 class MarioMusicPlayer {
     constructor() {
-        // DOM Elements
         this.els = {
             audio: document.getElementById('audioPlayer'),
             playBtn: document.getElementById('playBtn'),
             nextBtn: document.getElementById('nextBtn'),
             prevBtn: document.getElementById('prevBtn'),
             seekBar: document.getElementById('seekBar'),
+            seekRow: document.getElementById('playerSeekRow'),
             volumeSlider: document.getElementById('volumeSlider'),
-            currentTime: document.getElementById('currentTime'),
-            duration: document.getElementById('duration'),
+            timeRangeDisplay: document.getElementById('timeRangeDisplay'),
             title: document.getElementById('currentTitle'),
             artist: document.getElementById('currentArtist'),
             playlistItems: document.getElementById('playlistItems'),
@@ -20,18 +21,20 @@ class MarioMusicPlayer {
             folderName: document.getElementById('folderName'),
             songCount: document.getElementById('songCount'),
             loadingIndicator: document.getElementById('loadingIndicator'),
-            loadingText: document.getElementById('loadingText')
+            loadingText: document.getElementById('loadingText'),
+            playIconSvg: document.getElementById('playIconSvg'),
+            pauseIconSvg: document.getElementById('pauseIconSvg')
         };
 
-        // Player State
         this.playlist = [];
         this.filtered = [];
         this.currentIndex = 0;
         this.isPlaying = false;
-        this.audioFormats = ['.mp3', '.wav', '.m4a', '.ogg', '.aac', '.flac'];
         this.scanning = false;
+        this.wasPlayingBeforeMinimize = false;
+        /** While true, `timeupdate` must not overwrite the range (Spotify-clone pattern). */
+        this.isSeeking = false;
 
-        // Initialize Web Worker
         this.worker = new Worker('music-scanner-worker.js');
         this.worker.onmessage = (e) => this.handleWorkerMessage(e);
 
@@ -39,23 +42,158 @@ class MarioMusicPlayer {
     }
 
     init() {
-        // Event Listeners
         this.els.playBtn.onclick = () => this.togglePlay();
-        this.els.nextBtn.onclick = () => this.play((this.currentIndex + 1) % this.playlist.length);
-        this.els.prevBtn.onclick = () => this.play((this.currentIndex - 1 + this.playlist.length) % this.playlist.length);
-        this.els.seekBar.onchange = (e) => this.els.audio.currentTime = (e.target.value / 100) * this.els.audio.duration;
-        this.els.volumeSlider.oninput = (e) => this.els.audio.volume = e.target.value / 100;
+        this.els.nextBtn.onclick = () => {
+            if (!this.playlist.length) return;
+            this.play((this.currentIndex + 1) % this.playlist.length);
+        };
+        this.els.prevBtn.onclick = () => {
+            if (!this.playlist.length) return;
+            this.play((this.currentIndex - 1 + this.playlist.length) % this.playlist.length);
+        };
+
+        this.bindSeekBar();
+
+        this.els.volumeSlider.oninput = (e) => {
+            const v = Number(e.target.value) / 100;
+            this.els.audio.volume = v;
+            this.els.volumeSlider.style.setProperty('--vol-fill', `${e.target.value}%`);
+        };
         this.els.searchBox.oninput = (e) => this.search(e.target.value);
         this.els.folderPickerBtn.onclick = () => this.pickFolder();
 
-        // Audio Events
         this.els.audio.ontimeupdate = () => this.updateProgress();
-        this.els.audio.onloadedmetadata = () => this.els.duration.textContent = this.formatTime(this.els.audio.duration);
-        this.els.audio.onended = () => this.els.nextBtn.click();
+        this.els.audio.onloadedmetadata = () => {
+            this.updateTimeRange();
+            this.syncSeekUiFromAudio();
+        };
+        this.els.audio.onended = () => {
+            this.setSeekPercent(0);
+            this.els.nextBtn.click();
+        };
         this.els.audio.onplay = () => this.updatePlayBtn();
         this.els.audio.onpause = () => this.updatePlayBtn();
 
         this.els.audio.volume = 0.7;
+        this.els.volumeSlider.value = 70;
+        this.els.volumeSlider.style.setProperty('--vol-fill', '70%');
+        this.updateSeekDisabled();
+        this.updateTimeRange();
+        this.updatePlayBtn();
+
+        window.addEventListener('message', (e) => this.onParentMessage(e));
+    }
+
+    /**
+     * Spotify-style seek: pointer capture + isSeeking so `timeupdate` does not fight the thumb.
+     */
+    bindSeekBar() {
+        const bar = this.els.seekBar;
+        const row = this.els.seekRow;
+
+        const endSeek = () => {
+            if (!this.isSeeking) return;
+            this.isSeeking = false;
+            row?.classList.remove('is-seeking');
+            this.syncSeekUiFromAudio();
+        };
+
+        const applySeekPercent = (pct) => {
+            const audio = this.els.audio;
+            if (!audio.duration || !isFinite(audio.duration)) return;
+            const clamped = Math.min(100, Math.max(0, pct));
+            audio.currentTime = (clamped / 100) * audio.duration;
+        };
+
+        bar.addEventListener('pointerdown', (e) => {
+            if (bar.disabled) return;
+            this.isSeeking = true;
+            row?.classList.add('is-seeking');
+            try {
+                bar.setPointerCapture(e.pointerId);
+            } catch (_) {}
+        });
+
+        window.addEventListener('pointerup', endSeek);
+        window.addEventListener('pointercancel', endSeek);
+
+        bar.addEventListener('input', () => {
+            const pct = Number(bar.value);
+            this.setSeekPercentVisual(pct);
+            applySeekPercent(pct);
+            this.updateTimeRange();
+        });
+
+        bar.addEventListener('change', () => {
+            applySeekPercent(Number(bar.value));
+            endSeek();
+        });
+
+        row?.addEventListener('click', (e) => {
+            if (e.target === bar || bar.disabled || !this.els.audio.duration) return;
+            const rect = row.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const pct = (x / rect.width) * 100;
+            this.setSeekPercent(pct);
+            applySeekPercent(pct);
+            this.updateTimeRange();
+        });
+    }
+
+    setSeekPercentVisual(pct) {
+        this.els.seekBar.style.setProperty('--seek-pct', `${Math.min(100, Math.max(0, pct))}%`);
+    }
+
+    setSeekPercent(pct) {
+        const v = Math.min(100, Math.max(0, pct));
+        this.els.seekBar.value = String(v);
+        this.setSeekPercentVisual(v);
+    }
+
+    syncSeekUiFromAudio() {
+        const audio = this.els.audio;
+        if (!audio.duration || !isFinite(audio.duration)) {
+            this.setSeekPercent(0);
+            return;
+        }
+        if (this.isSeeking) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        this.setSeekPercent(pct);
+    }
+
+    updateSeekDisabled() {
+        const on = !!this.els.audio.src && !!this.playlist.length;
+        this.els.seekBar.disabled = !on;
+        this.els.seekRow?.classList.toggle('player-seek-row--disabled', !on);
+    }
+
+    onParentMessage(e) {
+        const t = e.data?.type;
+        if (t === 'WEBOS_MINIMIZE') {
+            this.wasPlayingBeforeMinimize = !this.els.audio.paused;
+            this.els.audio.pause();
+            this.persistSnapshot();
+        } else if (t === 'WEBOS_RESTORE') {
+            if (this.wasPlayingBeforeMinimize && this.playlist.length) {
+                this.els.audio.play().catch(() => {});
+            }
+            this.wasPlayingBeforeMinimize = false;
+        }
+    }
+
+    persistSnapshot() {
+        try {
+            sessionStorage.setItem(
+                MARIO_SNAPSHOT_KEY,
+                JSON.stringify({
+                    volume: this.els.audio.volume,
+                    currentTime: this.els.audio.currentTime,
+                    currentIndex: this.currentIndex,
+                    wasPlaying: this.wasPlayingBeforeMinimize,
+                    searchQuery: this.els.searchBox.value
+                })
+            );
+        } catch (_) {}
     }
 
     showLoading(show = true) {
@@ -81,13 +219,11 @@ class MarioMusicPlayer {
             this.scanning = true;
 
             this.updateLoadingText('Scanning files in background...');
-            
-            // Send to worker - worker handles it without blocking UI
-            this.worker.postMessage({ 
-                command: 'scan', 
-                dirHandle: dirHandle 
-            });
 
+            this.worker.postMessage({
+                command: 'scan',
+                dirHandle: dirHandle
+            });
         } catch (e) {
             this.scanning = false;
             this.showLoading(false);
@@ -96,7 +232,7 @@ class MarioMusicPlayer {
     }
 
     handleWorkerMessage(event) {
-        const { type, files, count, status, message } = event.data;
+        const { type, files, status, message } = event.data;
 
         if (type === 'progress') {
             this.updateLoadingText(status);
@@ -106,6 +242,7 @@ class MarioMusicPlayer {
             this.filter();
             this.showLoading(false);
             this.scanning = false;
+            this.updateSeekDisabled();
         } else if (type === 'error') {
             console.error('Worker error:', message);
             this.scanning = false;
@@ -119,7 +256,9 @@ class MarioMusicPlayer {
 
     filter(query = '') {
         const q = query.toLowerCase();
-        this.filtered = this.playlist.filter(s => s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+        this.filtered = this.playlist.filter(
+            (s) => s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+        );
         this.render();
     }
 
@@ -134,13 +273,15 @@ class MarioMusicPlayer {
             return;
         }
 
-        this.els.playlistItems.innerHTML = this.filtered.map((s, i) => {
-            const playlistIndex = this.playlist.indexOf(s);
-            return `<div class="playlist-item ${playlistIndex === this.currentIndex ? 'active' : ''}" onclick="player.play(${playlistIndex})">
+        this.els.playlistItems.innerHTML = this.filtered
+            .map((s) => {
+                const playlistIndex = this.playlist.indexOf(s);
+                return `<div class="playlist-item ${playlistIndex === this.currentIndex ? 'active' : ''}" onclick="player.play(${playlistIndex})">
                 <div class="playlist-item-title">♪ ${s.name}</div>
                 <div class="playlist-item-artist">${s.artist}</div>
             </div>`;
-        }).join('');
+            })
+            .join('');
 
         this.els.songCount.textContent = `${this.filtered.length} ${this.filtered.length === 1 ? 'song' : 'songs'}`;
     }
@@ -155,6 +296,7 @@ class MarioMusicPlayer {
         this.els.artist.textContent = song.artist;
         this.els.audio.play();
         this.updatePlayBtn();
+        this.updateSeekDisabled();
         this.render();
     }
 
@@ -168,25 +310,37 @@ class MarioMusicPlayer {
     }
 
     updateProgress() {
-        if (this.els.audio.duration) {
-            this.els.seekBar.value = (this.els.audio.currentTime / this.els.audio.duration) * 100;
-            this.els.currentTime.textContent = this.formatTime(this.els.audio.currentTime);
+        if (!this.isSeeking && this.els.audio.duration) {
+            const pct = (this.els.audio.currentTime / this.els.audio.duration) * 100;
+            this.setSeekPercent(pct);
+        }
+        this.updateTimeRange();
+    }
+
+    updateTimeRange() {
+        const cur = this.formatTime(this.els.audio.currentTime || 0);
+        const dur = this.formatTime(this.els.audio.duration || 0);
+        if (this.els.timeRangeDisplay) {
+            this.els.timeRangeDisplay.textContent = `${cur} / ${dur}`;
         }
     }
 
     updatePlayBtn() {
         this.isPlaying = !this.els.audio.paused;
-        this.els.playBtn.textContent = this.isPlaying ? '⏸️' : '▶️';
+        if (this.els.playIconSvg && this.els.pauseIconSvg) {
+            this.els.playIconSvg.classList.toggle('is-hidden', this.isPlaying);
+            this.els.pauseIconSvg.classList.toggle('is-hidden', !this.isPlaying);
+        }
     }
 
     formatTime(s) {
-        if (isNaN(s)) return '0:00';
+        if (isNaN(s)) return '00:00';
         const m = Math.floor(s / 60);
-        return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+        const sec = Math.floor(s % 60);
+        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.player = new MarioMusicPlayer();
     console.log('🍄 Mario Music Player ready!');

@@ -27,39 +27,6 @@ function webosRenderLogin(root) {
 	`;
 }
 
-// Validate login against backend API
-async function webosValidateLogin(password) {
-	try {
-		console.log("Attempting login with password:", password);
-		
-		const response = await fetch('http://localhost:5000/auth_gate', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ password: password })
-		});
-
-		console.log("Response status:", response.status);
-		const data = await response.json();
-		console.log("Response data:", data);
-
-		if (data.authorized === true) {
-			// Store token for future API calls
-			localStorage.setItem('webos_token', data.token);
-			localStorage.setItem('webos_ui_config', data.ui_config);
-			console.log("Login successful");
-			return { success: true, token: data.token };
-		} else {
-			console.log("Login failed:", data.msg || data.err || 'Unknown error');
-			return { success: false, error: data.msg || data.err || 'Authentication failed' };
-		}
-	} catch (error) {
-		console.error('Auth error:', error);
-		return { success: false, error: 'Connection error: ' + error.message };
-	}
-}
-
 function homeScreen(root) {
 	root.innerHTML = `
 		<section class="webos-home-screen">
@@ -314,6 +281,16 @@ function openRecycleBin() {
 }
 
 function openMusicWindow() {
+	const existing = document.getElementById('music-window');
+	if (existing) {
+		existing.style.display = 'flex';
+		maxZIndex++;
+		existing.style.zIndex = maxZIndex;
+		const frame = document.getElementById('mario-player-frame');
+		frame?.contentWindow?.postMessage({ type: 'WEBOS_RESTORE' }, '*');
+		return;
+	}
+
 	const appsArea = document.querySelector('.webos-apps-area');
 	const win = document.createElement('div');
 	win.id = 'music-window';
@@ -336,8 +313,10 @@ function openMusicWindow() {
 }
 
 function minimizeMusicWindow() {
+	const frame = document.getElementById('mario-player-frame');
+	frame?.contentWindow?.postMessage({ type: 'WEBOS_MINIMIZE' }, '*');
 	const win = document.getElementById('music-window');
-	if (win) win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+	if (win) win.style.display = 'none';
 }
 
 function maximizeMusicWindow() {
@@ -353,6 +332,9 @@ function maximizeMusicWindow() {
 }
 
 function closeMusicWindow() {
+	try {
+		sessionStorage.removeItem('webos_mario_player_snapshot');
+	} catch (_) {}
 	document.getElementById('music-window')?.remove();
 }
 
