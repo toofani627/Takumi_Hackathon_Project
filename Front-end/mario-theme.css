@@ -1,0 +1,35 @@
+/**
+ * Super Mario OS palette — flat colors only (no gradients).
+ */
+:root {
+    --mario-red: #E52521;
+    --overall-blue: #049CD8;
+    --coin-gold: #FBD000;
+    --pipe-green: #43B047;
+    --brick-brown: #C84C0C;
+    --mushroom-cream: #FFCC99;
+    --nes-grey: #AAAAAA;
+    --koopa-orange: #F83800;
+    --mario-black: #000000;
+    --mario-white: #ffffff;
+    --font-heading: "Press Start 2P", cursive, monospace;
+    --font-subheading: "DotGothic16", "Pixelify Sans", system-ui, sans-serif;
+    --font-body: "Pixelify Sans", system-ui, sans-serif;
+}
+
+/* Default body copy; components set heading/subheading explicitly */
+body {
+    font-family: var(--font-body);
+}
+
+h1, h2, h3,
+.mario-type-heading {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+.mario-type-subheading {
+    font-family: var(--font-subheading);
+    font-weight: 400;
+}

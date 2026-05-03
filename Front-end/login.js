@@ -5,9 +5,15 @@ const webosApps = [
 	{ id: 'camera', label: 'Camera', icon: 'Assets/images/camera.png', openFn: 'openCameraWindow' },
 	{ id: 'file-manager', label: 'File Manager', icon: 'Assets/images/file_manager.png', openFn: 'openFileManagerWindow' },
 	{ id: 'music', label: 'Music', icon: 'Assets/images/Music.png', openFn: 'openMusicWindow' },
+	{ id: 'calculator', label: 'Calculator', icon: 'Assets/images/Calculator.png', openFn: 'openCalculatorWindow' },
 	{ id: 'settings', label: 'Settings', icon: 'Assets/images/settings.png', openFn: 'openSettingsWindow' },
 	{ id: 'recycle-bin', label: 'Recycle Bin', icon: 'Assets/images/recycle-bin.png', openFn: 'openRecycleBin' }
 ];
+
+/** URL-encode each path segment for img src / CSS */
+function webosAssetUrl(path) {
+	return path.split('/').map(encodeURIComponent).join('/');
+}
 
 function webosRenderLogin(root) {
 	root.innerHTML = `
@@ -29,7 +35,7 @@ function webosRenderLogin(root) {
 
 function homeScreen(root) {
 	root.innerHTML = `
-		<section class="webos-home-screen">
+		<section class="webos-home-screen" id="webos-home-screen">
 			<div class="webos-apps-area"></div>
 			<div class="webos-taskbar">
 				<div class="webos-taskbar-item" data-label="Windows">
@@ -48,10 +54,16 @@ function homeScreen(root) {
 				<div class="webos-taskbar-item" data-label="File Manager">
 					<img src="Assets/images/file_manager.png" alt="File Manager" class="webos-taskbar-icon">
 					<span class="webos-taskbar-tooltip">File Manager</span>
-				</div>			<div class="webos-taskbar-item" data-label="Music">
-				<img src="Assets/images/Music.png" alt="Music" class="webos-taskbar-icon">
-				<span class="webos-taskbar-tooltip">Music</span>
-			</div>				<div class="webos-taskbar-item" data-label="Recycle Bin">
+				</div>
+				<div class="webos-taskbar-item" data-label="Music">
+					<img src="Assets/images/Music.png" alt="Music" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Music</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="Calculator">
+					<img src="Assets/images/Calculator.png" alt="Calculator" class="webos-taskbar-icon">
+					<span class="webos-taskbar-tooltip">Calculator</span>
+				</div>
+				<div class="webos-taskbar-item" data-label="Recycle Bin">
 					<img src="Assets/images/recycle-bin.png" alt="Recycle Bin" class="webos-taskbar-icon">
 					<span class="webos-taskbar-tooltip">Recycle Bin</span>
 				</div>
@@ -114,7 +126,7 @@ function homeScreen(root) {
 		desktopIcon.style.cssText = 'text-align: center; cursor: pointer; user-select: none;';
 		desktopIcon.innerHTML = `
 			<img src="${app.icon}" style="width: 40px; height: 40px; margin-bottom: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-			<div style="font-size: 11px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); max-width: 80px; word-break: break-word;">${app.label}</div>
+			<div style="font-size: 11px; color: #FBD000; text-shadow: 1px 1px 0 #000, 2px 2px 0 #000; max-width: 80px; word-break: break-word; font-weight: 700;">${app.label}</div>
 		`;
 		desktopIcon.addEventListener('click', () => window[app.openFn]());
 		desktopIcon.addEventListener('dblclick', () => window[app.openFn]());
@@ -138,6 +150,10 @@ function homeScreen(root) {
 	
 	// Update battery status every 30 seconds
 	setInterval(updateBatteryStatus, 30000);
+
+	if (typeof WebOSDisk !== 'undefined') {
+		WebOSDisk.applyToHomeScreen();
+	}
 }
 
 // Function to update time and date
@@ -229,11 +245,11 @@ function openStartMenu() {
 	
 	const menu = document.createElement('div');
 	menu.className = 'webos-start-menu';
-	menu.style.cssText = 'position: fixed; left: 20px; bottom: 110px; width: 300px; background: #F0F0F0; border: 2px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 9999; display: flex; flex-direction: column;';
+	menu.style.cssText = 'position: fixed; left: 20px; bottom: 110px; width: 300px; background: #FFCC99; border: 3px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; z-index: 9999; display: flex; flex-direction: column;';
 	
 	const title = document.createElement('div');
-	title.style.cssText = 'background: linear-gradient(90deg, #0078D4 0%, #50E6FF 100%); color: white; padding: 12px; font-weight: bold; border-bottom: 1px solid #ddd;';
-	title.innerHTML = 'Apps';
+	title.style.cssText = 'font-family: \"Press Start 2P\", monospace; background: #E52521; color: #FBD000; padding: 12px; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000;';
+	title.textContent = 'Apps';
 	menu.appendChild(title);
 	
 	const content = document.createElement('div');
@@ -243,8 +259,8 @@ function openStartMenu() {
 		const item = document.createElement('div');
 		item.style.cssText = 'display: flex; align-items: center; gap: 12px; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s;';
 		item.innerHTML = `<img src="${app.icon}" style="width: 32px; height: 32px;"><span>${app.label}</span>`;
-		item.addEventListener('mouseenter', () => item.style.background = '#E0E0E0');
-		item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+		item.addEventListener('mouseenter', () => (item.style.background = '#FBD000'));
+		item.addEventListener('mouseleave', () => (item.style.background = 'transparent'));
 		item.addEventListener('click', () => {
 			window[app.openFn]();
 			menu.remove();
@@ -295,14 +311,14 @@ function openMusicWindow() {
 	const win = document.createElement('div');
 	win.id = 'music-window';
 	win.className = 'webos-music-window';
-	win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+	win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #FFCC99; border: 4px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; display: flex; flex-direction: column; z-index: 100;';
 	win.innerHTML = `
-		<div style="background: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%); color: white; padding: 12px; font-weight: bold; border-bottom: 2px solid #7B1FA2; display: flex; justify-content: space-between; align-items: center;">
-			<span>🍄 Mario's Music Player 🍄</span>
+		<div style="background: #E52521; color: #FBD000; padding: 12px; font-family: \"Press Start 2P\", monospace; font-size: 9px; font-weight: 400; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: center;">
+			<span>Mario Music</span>
 			<div style="display: flex; gap: 4px;">
-				<button class="webos-settings-btn" onclick="minimizeMusicWindow()" style="background: #E91E63; width: 30px; height: 30px;">_</button>
-				<button class="webos-settings-btn" onclick="maximizeMusicWindow()" style="background: #C2185B; width: 30px; height: 30px;">☐</button>
-				<button class="webos-settings-btn" onclick="closeMusicWindow()" style="background: #FF6B6B; width: 30px; height: 30px;">×</button>
+				<button class="webos-settings-btn" onclick="minimizeMusicWindow()" style="background: #049CD8; width: 30px; height: 30px;" title="Minimize">_</button>
+				<button class="webos-settings-btn" onclick="maximizeMusicWindow()" style="background: #049CD8; width: 30px; height: 30px;" title="Maximize">[]</button>
+				<button class="webos-settings-btn" onclick="closeMusicWindow()" style="background: #F83800; width: 30px; height: 30px;" title="Close">x</button>
 			</div>
 		</div>
 		<iframe id="mario-player-frame" src="mario-music-player.html" style="flex: 1; border: none; border-radius: 0 0 8px 8px; width: 100%;"></iframe>
@@ -324,7 +340,7 @@ function maximizeMusicWindow() {
 	if (!win) return;
 	if (win.classList.contains('maximized')) {
 		win.classList.remove('maximized');
-		win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #F5E6D3; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+		win.style.cssText = 'position: absolute; left: 50px; top: 80px; width: 900px; height: 600px; background: #FFCC99; border: 4px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #C84C0C; display: flex; flex-direction: column; z-index: 100;';
 	} else {
 		win.classList.add('maximized');
 		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; z-index: 100;';
@@ -338,6 +354,60 @@ function closeMusicWindow() {
 	document.getElementById('music-window')?.remove();
 }
 
+function openCalculatorWindow() {
+	const existing = document.getElementById('calculator-window');
+	if (existing) {
+		existing.style.display = 'flex';
+		maxZIndex++;
+		existing.style.zIndex = maxZIndex;
+		return;
+	}
+
+	const appsArea = document.querySelector('.webos-apps-area');
+	const win = document.createElement('div');
+	win.id = 'calculator-window';
+	win.className = 'webos-calculator-window';
+	win.style.cssText =
+		'position: absolute; left: 130px; top: 90px; width: 420px; height: 620px; min-width: 360px; background: #000000; border: 4px solid #049CD8; border-radius: 4px; box-shadow: 6px 6px 0 #AAAAAA; display: flex; flex-direction: column; z-index: 100; overflow: hidden;';
+	win.innerHTML = `
+		<div style="background: #049CD8; color: #000000; padding: 10px 12px; font-family: \"Press Start 2P\", monospace; font-size: 8px; border-bottom: 3px solid #000000; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; cursor: move;">
+			<span>Retro Calculator</span>
+			<div style="display: flex; gap: 4px;">
+				<button type="button" class="webos-settings-btn" onclick="minimizeCalculatorWindow()" style="background: #43B047; width: 30px; height: 30px; color: #000; border: 2px solid #000;">_</button>
+				<button type="button" class="webos-settings-btn" onclick="maximizeCalculatorWindow()" style="background: #43B047; width: 30px; height: 30px; color: #000; border: 2px solid #000;">[]</button>
+				<button type="button" class="webos-settings-btn" onclick="closeCalculatorWindow()" style="background: #F83800; width: 30px; height: 30px; color: #000; border: 2px solid #000;">x</button>
+			</div>
+		</div>
+		<iframe id="calculator-frame" src="Retro-Calculator/index.html" style="flex: 1; border: none; border-radius: 0 0 6px 6px; width: 100%; min-height: 0; background: #000;" title="Retro Calculator"></iframe>
+	`;
+	appsArea.appendChild(win);
+	makeWindowDraggable(win, 'div:first-child');
+	addWindowFocusListener(win);
+}
+
+function minimizeCalculatorWindow() {
+	const win = document.getElementById('calculator-window');
+	if (win) win.style.display = 'none';
+}
+
+function maximizeCalculatorWindow() {
+	const win = document.getElementById('calculator-window');
+	if (!win) return;
+	if (win.classList.contains('maximized')) {
+		win.classList.remove('maximized');
+		win.style.cssText =
+			'position: absolute; left: 130px; top: 90px; width: 420px; height: 620px; min-width: 360px; background: #000000; border: 4px solid #049CD8; border-radius: 4px; box-shadow: 6px 6px 0 #AAAAAA; display: flex; flex-direction: column; z-index: 100; overflow: hidden;';
+	} else {
+		win.classList.add('maximized');
+		win.style.cssText =
+			'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; z-index: 100; overflow: hidden; background: #050505;';
+	}
+}
+
+function closeCalculatorWindow() {
+	document.getElementById('calculator-window')?.remove();
+}
+
 function webosInitLogin() {
 	console.log("successful");
 	const root = document.getElementById("webos-root");
@@ -348,6 +418,12 @@ function webosInitLogin() {
 	// Skip login, go directly to home screen (WEB3 mode)
 	initializeFolderData();
 	homeScreen(root);
+
+	window.addEventListener('message', (e) => {
+		if (e.data && e.data.type === 'WEBOS_DISK_MUSIC' && typeof WebOSDisk !== 'undefined') {
+			WebOSDisk.updateMusicState(e.data.payload);
+		}
+	});
 }
 
 window.addEventListener("load", webosInitLogin);
@@ -355,38 +431,121 @@ window.addEventListener("load", webosInitLogin);
 // Settings Window Functions
 function openSettingsWindow() {
 	const appsArea = document.querySelector('.webos-apps-area');
+	const disk = typeof WebOSDisk !== 'undefined' ? WebOSDisk.getDiskForDisplay() : { display: { brightness: 100 } };
+	const b = disk.display && disk.display.brightness != null ? disk.display.brightness : 100;
+
 	const win = document.createElement('div');
 	win.id = 'settings-window';
 	win.className = 'webos-settings-window';
-	win.style.cssText = 'left: 100px; top: 100px; width: 420px; z-index: 100;';
+	win.style.cssText = 'left: 100px; top: 80px; width: 520px; max-width: 96vw; z-index: 100;';
 	win.innerHTML = `
 		<div class="webos-settings-titlebar">
 			<span>Settings</span>
 			<div class="webos-settings-buttons">
-				<button class="webos-settings-btn" onclick="minimizeSettingsWindow()">_</button>
-				<button class="webos-settings-btn" onclick="maximizeSettingsWindow()">☐</button>
-				<button class="webos-settings-btn" onclick="closeSettingsWindow()" style="background: #FF6B6B;">×</button>
+				<button class="webos-settings-btn" onclick="minimizeSettingsWindow()" title="Minimize">_</button>
+				<button class="webos-settings-btn" onclick="maximizeSettingsWindow()" title="Maximize">[]</button>
+				<button class="webos-settings-btn" onclick="closeSettingsWindow()" style="background: #F83800;" title="Close">x</button>
 			</div>
 		</div>
 		<div class="webos-settings-content">
 			<b>Display Settings</b>
 			<div class="webos-settings-label-group">
 				<label class="webos-settings-label">Brightness</label>
-				<input type="range" min="0" max="100" value="75" class="webos-settings-slider" onchange="updateSliderValue(this)">
-				<span class="webos-settings-value" id="brightness-val">75%</span>
+				<input type="range" min="40" max="100" value="${b}" class="webos-settings-slider" oninput="updateSliderValue(this)">
+				<span class="webos-settings-value" id="brightness-val">${b}%</span>
 			</div>
-			<div class="webos-settings-label-group">
-				<label class="webos-settings-label">Resolution</label>
-				<input type="range" min="1" max="5" value="3" class="webos-settings-slider" onchange="updateSliderValue(this)">
-				<span class="webos-settings-value" id="resolution-val">1920x1080</span>
+			<b>Personalization</b>
+			<div class="webos-wallpaper-section">
+				<label class="webos-settings-label" style="display:block;width:100%;min-width:0;margin-bottom:6px;">Wallpaper</label>
+				<div id="webos-wallpaper-grid" class="webos-wallpaper-grid" role="group" aria-label="Choose wallpaper"></div>
+				<div class="webos-wallpaper-actions">
+					<button type="button" class="webos-btn-import" id="webos-wallpaper-import-btn">Import from computer</button>
+					<input type="file" id="webos-wallpaper-file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" />
+					<div class="webos-wallpaper-import-preview" id="webos-wallpaper-import-preview">
+						<img id="webos-custom-wall-thumb-img" alt="Custom wallpaper preview" style="display:none;" />
+						<span id="webos-custom-wall-thumb-label">Custom image appears here</span>
+					</div>
+				</div>
 			</div>
-			<br>
 			<b>Audio Settings</b><br>Volume | Device<br><br>
 			<b>System Settings</b><br>About | Logout
 		</div>
 	`;
 	appsArea.appendChild(win);
+	initSettingsWallpaperUI();
 	makeWindowDraggable(win, '.webos-settings-titlebar');
+	addWindowFocusListener(win);
+}
+
+function initSettingsWallpaperUI() {
+	if (typeof WebOSDisk === 'undefined') return;
+
+	const grid = document.getElementById('webos-wallpaper-grid');
+	const disk = WebOSDisk.getDiskForDisplay();
+	const wp = disk.wallpaper || { kind: 'builtin', path: 'Assets/images/Wallpapers/Bg.png' };
+
+	const setActiveThumb = (el) => {
+		document.querySelectorAll('.webos-wallpaper-thumb').forEach((t) => t.classList.remove('webos-wallpaper-thumb--active'));
+		if (el) el.classList.add('webos-wallpaper-thumb--active');
+	};
+
+	if (grid) {
+		grid.innerHTML = '';
+		WebOSDisk.WALLPAPER_OPTIONS.forEach((opt) => {
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'webos-wallpaper-thumb';
+			btn.dataset.path = opt.path;
+			const isActive = wp.kind === 'builtin' && wp.path === opt.path;
+			if (isActive) btn.classList.add('webos-wallpaper-thumb--active');
+			btn.innerHTML = `<img src="${webosAssetUrl(opt.path)}" alt=""><span>${opt.label}</span>`;
+			btn.addEventListener('click', () => {
+				WebOSDisk.setWallpaperBuiltin(opt.path);
+				setActiveThumb(btn);
+				const img = document.getElementById('webos-custom-wall-thumb-img');
+				const lbl = document.getElementById('webos-custom-wall-thumb-label');
+				if (img) img.style.display = 'none';
+				if (lbl) lbl.textContent = 'Custom image appears here';
+			});
+			grid.appendChild(btn);
+		});
+	}
+
+	const img = document.getElementById('webos-custom-wall-thumb-img');
+	const lbl = document.getElementById('webos-custom-wall-thumb-label');
+	if (wp.kind === 'custom' && wp.dataUrl && img && lbl) {
+		img.src = wp.dataUrl;
+		img.style.display = 'block';
+		lbl.textContent = 'Using imported wallpaper';
+	}
+
+	document.getElementById('webos-wallpaper-import-btn')?.addEventListener('click', () => {
+		document.getElementById('webos-wallpaper-file')?.click();
+	});
+
+	document.getElementById('webos-wallpaper-file')?.addEventListener('change', (e) => {
+		const file = e.target.files && e.target.files[0];
+		if (!file || !file.type.startsWith('image/')) return;
+		if (file.size > 4 * 1024 * 1024) {
+			alert('Image is too large. Please use a file under 4 MB.');
+			e.target.value = '';
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = () => {
+			const dataUrl = reader.result;
+			WebOSDisk.setWallpaperCustomDataUrl(dataUrl);
+			setActiveThumb(null);
+			document.querySelectorAll('#webos-wallpaper-grid .webos-wallpaper-thumb').forEach((t) => t.classList.remove('webos-wallpaper-thumb--active'));
+			if (img) {
+				img.src = dataUrl;
+				img.style.display = 'block';
+			}
+			if (lbl) lbl.textContent = 'Using imported wallpaper';
+		};
+		reader.readAsDataURL(file);
+		e.target.value = '';
+	});
 }
 
 function makeWindowDraggable(element, titleSelector) {
@@ -424,7 +583,7 @@ function maximizeSettingsWindow() {
 	if (!win) return;
 	if (win.classList.contains('maximized')) {
 		win.classList.remove('maximized');
-		win.style.cssText = 'position: absolute; left: 100px; top: 100px; width: 420px; height: auto;';
+		win.style.cssText = 'position: absolute; left: 100px; top: 80px; width: 520px; max-width: 96vw; height: auto; z-index: 100;';
 	} else {
 		win.classList.add('maximized');
 		win.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: calc(100vh - 7vh); border: none; box-shadow: none; border-radius: 0;';
@@ -439,12 +598,12 @@ function updateSliderValue(slider) {
 	const parent = slider.parentElement;
 	const valueSpan = parent.querySelector('.webos-settings-value');
 	const label = parent.querySelector('.webos-settings-label').textContent.trim();
-	
+
 	if (label === 'Brightness') {
 		valueSpan.textContent = slider.value + '%';
-	} else if (label === 'Resolution') {
-		const resolutions = ['1024x768', '1280x720', '1920x1080', '2560x1440', '3840x2160'];
-		valueSpan.textContent = resolutions[slider.value - 1];
+		if (typeof WebOSDisk !== 'undefined') {
+			WebOSDisk.setBrightness(slider.value);
+		}
 	}
 }
 
@@ -461,17 +620,17 @@ function openCameraWindow() {
 	win.style.cssText = 'left: 300px; top: 150px; width: 480px; height: 420px; z-index: 100;';
 	win.innerHTML = `
 		<div class="webos-camera-titlebar">
-			<span class="webos-camera-titlebar-text">📷 Camera</span>
+			<span class="webos-camera-titlebar-text">Camera</span>
 			<div class="webos-camera-titlebar-buttons">
-				<button class="webos-settings-btn" onclick="minimizeCameraWindow()" style="background: #00BCD4;">_</button>
-				<button class="webos-settings-btn" onclick="maximizeCameraWindow()" style="background: #0097A7;">☐</button>
-				<button class="webos-settings-btn" onclick="closeCameraWindow()" style="background: #FF6B6B;">×</button>
+				<button class="webos-settings-btn" onclick="minimizeCameraWindow()" style="background: #049CD8;">_</button>
+				<button class="webos-settings-btn" onclick="maximizeCameraWindow()" style="background: #049CD8;">[]</button>
+				<button class="webos-settings-btn" onclick="closeCameraWindow()" style="background: #F83800;">x</button>
 			</div>
 		</div>
 		<div class="webos-camera-content">
-			<video id="camera-video" width="448" height="230" style="border: 3px solid #000; border-radius: 8px; margin-bottom: 12px; object-fit: cover; background: linear-gradient(135deg, #0288D1 0%, #00BCD4 50%, #00E5FF 100%);" autoplay playsinline></video>
+			<video id="camera-video" width="448" height="230" style="border: 3px solid #000; border-radius: 4px; margin-bottom: 12px; object-fit: cover; background: #049CD8;" autoplay playsinline></video>
 			<div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
-				<button class="webos-settings-btn" onclick="captureAndSavePhoto()" style="background: #0097A7; flex: 1;">Take Photo</button>
+				<button class="webos-settings-btn" onclick="captureAndSavePhoto()" style="background: #43B047; flex: 1; color: #000;">Take Photo</button>
 			</div>
 			<p id="camera-status" style="text-align: center; margin-top: 8px; font-size: 12px;">Initializing camera...</p>
 		</div>
@@ -491,17 +650,17 @@ function initializeCamera() {
 				if (video) {
 					video.srcObject = stream;
 					document.getElementById('camera-status').textContent = 'Camera ready';
-					document.getElementById('camera-status').style.color = '#049CD8';
+					document.getElementById('camera-status').style.color = '#C84C0C';
 				}
 			})
 			.catch(error => {
 				console.error('Camera error:', error);
 				document.getElementById('camera-status').textContent = 'Camera not available';
-				document.getElementById('camera-status').style.color = '#FF6B6B';
+				document.getElementById('camera-status').style.color = '#F83800';
 			});
 	} else {
 		document.getElementById('camera-status').textContent = 'Camera not supported';
-		document.getElementById('camera-status').style.color = '#FF6B6B';
+		document.getElementById('camera-status').style.color = '#F83800';
 	}
 }
 
@@ -547,31 +706,31 @@ function openFileManagerWindow() {
 	
 	win.innerHTML = `
 		<div class="webos-file-manager-titlebar">
-			<span class="webos-file-manager-titlebar-text">📁 File Manager</span>
+			<span class="webos-file-manager-titlebar-text">Files</span>
 			<div class="webos-file-manager-titlebar-buttons">
-				<button class="webos-settings-btn" onclick="minimizeFileManagerWindow()" style="background: #43B047;">_</button>
-				<button class="webos-settings-btn" onclick="maximizeFileManagerWindow()" style="background: #388E3C;">☐</button>
-				<button class="webos-settings-btn" onclick="closeFileManagerWindow()" style="background: #FF6B6B;">×</button>
+				<button class="webos-settings-btn" onclick="minimizeFileManagerWindow()" style="background: #049CD8;">_</button>
+				<button class="webos-settings-btn" onclick="maximizeFileManagerWindow()" style="background: #049CD8;">[]</button>
+				<button class="webos-settings-btn" onclick="closeFileManagerWindow()" style="background: #F83800;">x</button>
 			</div>
 		</div>
 		<div class="webos-file-manager-content">
 			<div class="webos-folder-item" onclick="openFolder('photos')">
-				<div class="webos-folder-item-icon">📷</div>
+				<div class="webos-folder-item-icon">PH</div>
 				<div class="webos-folder-item-name">Photos</div>
 				<div class="webos-folder-item-count">${folderData.photos.length} items</div>
 			</div>
 			<div class="webos-folder-item" onclick="openFolder('folder1')">
-				<div class="webos-folder-item-icon">📂</div>
+				<div class="webos-folder-item-icon">F1</div>
 				<div class="webos-folder-item-name">Folder 1</div>
 				<div class="webos-folder-item-count">${folderData.folder1.length} items</div>
 			</div>
 			<div class="webos-folder-item" onclick="openFolder('folder2')">
-				<div class="webos-folder-item-icon">📂</div>
+				<div class="webos-folder-item-icon">F2</div>
 				<div class="webos-folder-item-name">Folder 2</div>
 				<div class="webos-folder-item-count">${folderData.folder2.length} items</div>
 			</div>
 			<div class="webos-folder-item" onclick="openFolder('songs')">
-				<div class="webos-folder-item-icon">🎵</div>
+				<div class="webos-folder-item-icon">MU</div>
 				<div class="webos-folder-item-name">Songs</div>
 				<div class="webos-folder-item-count">${folderData.songs.length} items</div>
 			</div>
@@ -614,19 +773,34 @@ function initializeFolderData() {
 		folder2: [],
 		songs: []
 	};
-	
-	if (!localStorage.getItem('webos_file_manager')) {
+
+	if (typeof WebOSDisk !== 'undefined') {
+		const disk = WebOSDisk.load();
+		if (!disk.fileManager && !localStorage.getItem('webos_file_manager')) {
+			WebOSDisk.patch({ fileManager: defaultData });
+			localStorage.setItem('webos_file_manager', JSON.stringify(defaultData));
+		} else if (disk.fileManager && !localStorage.getItem('webos_file_manager')) {
+			localStorage.setItem('webos_file_manager', JSON.stringify(disk.fileManager));
+		}
+	} else if (!localStorage.getItem('webos_file_manager')) {
 		localStorage.setItem('webos_file_manager', JSON.stringify(defaultData));
 	}
 }
 
 function loadFolderData() {
 	initializeFolderData();
+	if (typeof WebOSDisk !== 'undefined') {
+		const disk = WebOSDisk.load();
+		if (disk.fileManager) return disk.fileManager;
+	}
 	const data = localStorage.getItem('webos_file_manager');
 	return JSON.parse(data || '{"photos":[],"folder1":[],"folder2":[],"songs":[]}');
 }
 
 function saveFolderData(data) {
+	if (typeof WebOSDisk !== 'undefined') {
+		WebOSDisk.patch({ fileManager: data });
+	}
 	localStorage.setItem('webos_file_manager', JSON.stringify(data));
 }
 
@@ -660,13 +834,13 @@ function captureAndSavePhoto() {
 	addItemToFolder('photos', { name: photoName, data: photoData });
 	
 	// Update status
-	document.getElementById('camera-status').textContent = `✓ Photo saved to Photos folder`;
-	document.getElementById('camera-status').style.color = '#4CAF50';
+	document.getElementById('camera-status').textContent = 'Saved to Photos';
+	document.getElementById('camera-status').style.color = '#43B047';
 	
 	// Reset after 2 seconds
 	setTimeout(() => {
 		document.getElementById('camera-status').textContent = 'Camera ready';
-		document.getElementById('camera-status').style.color = '#049CD8';
+		document.getElementById('camera-status').style.color = '#C84C0C';
 	}, 2000);
 }
 
@@ -677,7 +851,7 @@ function openPhotoViewer(photo) {
 	viewer.innerHTML = `
 		<div style="position: relative; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center;">
 			<img src="${photo.data}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-			<button onclick="this.closest('.webos-photo-viewer').remove()" style="position: absolute; top: 20px; right: 20px; background: #FF6B6B; color: white; border: none; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; font-size: 20px;">×</button>
+			<button onclick="this.closest('.webos-photo-viewer').remove()" style="position: absolute; top: 20px; right: 20px; background: #F83800; color: #FFCC99; border: 3px solid #000; width: 40px; height: 40px; cursor: pointer; border-radius: 4px; font-size: 16px;">x</button>
 			<div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 4px; font-size: 14px;">${photo.name}</div>
 		</div>
 	`;
@@ -701,13 +875,14 @@ function openFolder(folderName) {
 	
 	const folderWindow = document.createElement('div');
 	folderWindow.className = 'webos-folder-view-window';
-	folderWindow.style.cssText = 'position: absolute; left: 150px; top: 150px; width: 600px; height: 450px; background: #fff; border: 3px solid #333; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 100;';
+	folderWindow.style.cssText = 'position: absolute; left: 150px; top: 150px; width: 600px; height: 450px; background: #FFCC99; border: 4px solid #000; border-radius: 4px; box-shadow: 6px 6px 0 #43B047; display: flex; flex-direction: column; z-index: 100;';
 	
 	const titlebar = document.createElement('div');
-	titlebar.style.cssText = 'background: linear-gradient(135deg, #43B047 0%, #388E3C 100%); color: white; padding: 10px; font-weight: bold; border-bottom: 2px solid #2e7d32; display: flex; justify-content: space-between; align-items: center; cursor: move;';
+	titlebar.style.cssText = 'background: #43B047; color: #000; padding: 10px; font-family: \"Press Start 2P\", monospace; font-size: 8px; font-weight: 400; border-bottom: 3px solid #000; display: flex; justify-content: space-between; align-items: center; cursor: move;';
+	const folderLabel = folderName.charAt(0).toUpperCase() + folderName.slice(1);
 	titlebar.innerHTML = `
-		<span>📁 ${folderName.charAt(0).toUpperCase() + folderName.slice(1)}</span>
-		<button onclick="this.closest('.webos-folder-view-window').remove()" style="background: #FF6B6B; color: white; border: none; width: 30px; height: 30px; cursor: pointer; border-radius: 4px;">×</button>
+		<span>${folderLabel}</span>
+		<button onclick="this.closest('.webos-folder-view-window').remove()" style="background: #F83800; color: #FFCC99; border: 2px solid #000; width: 30px; height: 30px; cursor: pointer; border-radius: 4px;">x</button>
 	`;
 	
 	const content = document.createElement('div');

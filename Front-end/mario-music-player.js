@@ -37,6 +37,7 @@ class MarioMusicPlayer {
 
         this.worker = new Worker('music-scanner-worker.js');
         this.worker.onmessage = (e) => this.handleWorkerMessage(e);
+        this._diskSyncTick = 0;
 
         this.init();
     }
@@ -183,16 +184,23 @@ class MarioMusicPlayer {
 
     persistSnapshot() {
         try {
-            sessionStorage.setItem(
-                MARIO_SNAPSHOT_KEY,
-                JSON.stringify({
-                    volume: this.els.audio.volume,
-                    currentTime: this.els.audio.currentTime,
-                    currentIndex: this.currentIndex,
-                    wasPlaying: this.wasPlayingBeforeMinimize,
-                    searchQuery: this.els.searchBox.value
-                })
-            );
+            const payload = {
+                volume: this.els.audio.volume,
+                currentTime: this.els.audio.currentTime,
+                currentIndex: this.currentIndex,
+                wasPlaying: this.wasPlayingBeforeMinimize,
+                searchQuery: this.els.searchBox.value
+            };
+            sessionStorage.setItem(MARIO_SNAPSHOT_KEY, JSON.stringify(payload));
+            this.syncMusicToParent(payload);
+        } catch (_) {}
+    }
+
+    syncMusicToParent(payload) {
+        try {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'WEBOS_DISK_MUSIC', payload }, '*');
+            }
         } catch (_) {}
     }
 
@@ -207,7 +215,7 @@ class MarioMusicPlayer {
     async pickFolder() {
         try {
             if (this.scanning) {
-                alert('⏳ Already scanning. Please wait...');
+                alert('Already scanning. Please wait.');
                 return;
             }
 
@@ -268,7 +276,7 @@ class MarioMusicPlayer {
 
     render() {
         if (!this.filtered.length) {
-            this.els.playlistItems.innerHTML = '<div class="empty-state">📂 No songs</div>';
+            this.els.playlistItems.innerHTML = '<div class="empty-state">No songs</div>';
             this.els.songCount.textContent = '0 songs';
             return;
         }
@@ -277,7 +285,7 @@ class MarioMusicPlayer {
             .map((s) => {
                 const playlistIndex = this.playlist.indexOf(s);
                 return `<div class="playlist-item ${playlistIndex === this.currentIndex ? 'active' : ''}" onclick="player.play(${playlistIndex})">
-                <div class="playlist-item-title">♪ ${s.name}</div>
+                <div class="playlist-item-title">${s.name}</div>
                 <div class="playlist-item-artist">${s.artist}</div>
             </div>`;
             })
@@ -302,7 +310,7 @@ class MarioMusicPlayer {
 
     togglePlay() {
         if (!this.playlist.length) {
-            alert('🍄 Pick a music folder first!');
+            alert('Pick a music folder first.');
             return;
         }
         if (!this.els.audio.src) this.play(0);
@@ -315,6 +323,15 @@ class MarioMusicPlayer {
             this.setSeekPercent(pct);
         }
         this.updateTimeRange();
+        this._diskSyncTick++;
+        if (this._diskSyncTick % 45 === 0) {
+            this.syncMusicToParent({
+                volume: this.els.audio.volume,
+                currentTime: this.els.audio.currentTime,
+                currentIndex: this.currentIndex,
+                searchQuery: this.els.searchBox.value
+            });
+        }
     }
 
     updateTimeRange() {
@@ -343,5 +360,5 @@ class MarioMusicPlayer {
 
 document.addEventListener('DOMContentLoaded', () => {
     window.player = new MarioMusicPlayer();
-    console.log('🍄 Mario Music Player ready!');
+    console.log('Mario Music Player ready.');
 });

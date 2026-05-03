@@ -2,7 +2,10 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: url("Assets/images/Bg.png") center/cover no-repeat;
+    background-color: var(--overall-blue, #049CD8);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     overflow: hidden;
 }
 
@@ -13,15 +16,15 @@
 
 .webos-taskbar {
     height: 7vh;
-    /* border: 2px solid #000000; */
     background-color: rgba(123, 123, 123, 0.6);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
     padding: 0 20px;
-    font-family: 'Pixelify Sans', system-ui, sans-serif;
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
 }
 
 .webos-taskbar-search {
@@ -33,7 +36,7 @@
     border-radius: 999px;
     background-color: rgba(255, 255, 255, 0.4);
     border: 1px solid rgba(0, 0, 0, 0.2);
-          width: 238px;
+    width: 238px;
 }
 
 .webos-taskbar-search-input {
@@ -43,7 +46,7 @@
     outline: none;
     font-size: 13px;
     color: #1f1f1f;
-    font-family: 'Pixelify Sans', system-ui, sans-serif;
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
 }
 
 .webos-taskbar-search-input::placeholder {
@@ -85,9 +88,11 @@
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 12px;
+    font-family: var(--font-body, 'Pixelify Sans', sans-serif);
     color: #000000;
     background-color: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     pointer-events: none;
     white-space: nowrap;
@@ -118,6 +123,7 @@
     font-size: 16px;
     color: #ffffff;
     font-weight: 600;
+    font-family: var(--font-body, 'Pixelify Sans', sans-serif);
 }
 
 .webos-time-date {
@@ -179,6 +185,7 @@
     right: 0;
     background-color: rgba(50, 50, 50, 0.95);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 12px 16px;
     border-radius: 8px;
     display: none;
@@ -229,31 +236,34 @@
     color: #ffffff;
 }
 
-/* Settings Window - Mario Pixelated + Kurzgesagt Colors */
+/* Settings Window */
 .webos-settings-window {
     position: absolute;
     display: flex;
     flex-direction: column;
-    background: #FFD700;
-    border: 4px solid #000;
-    box-shadow: 0 4px 0 #FF6B6B, 0 8px 0 rgba(0,0,0,0.3);
-    font-family: 'Pixelify Sans', system-ui, sans-serif;
+    background: var(--coin-gold, #FBD000);
+    border: 4px solid var(--mario-black, #000);
+    box-shadow: 6px 6px 0 var(--brick-brown, #C84C0C);
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
     z-index: 1000;
-    min-width: 320px;
+    min-width: 400px;
+    max-width: min(520px, 96vw);
 }
 
 .webos-settings-titlebar {
-    background: linear-gradient(90deg, #FF6B6B, #FFA500);
-    border-bottom: 3px solid #000;
-    padding: 8px 12px;
+    background: var(--mario-red, #E52521);
+    border-bottom: 3px solid var(--mario-black, #000);
+    padding: 10px 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: move;
     user-select: none;
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
+    color: var(--coin-gold, #FBD000);
+    font-family: var(--font-heading, "Press Start 2P", monospace);
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 1.4;
 }
 
 .webos-settings-buttons {
@@ -264,9 +274,10 @@
 .webos-settings-btn {
     width: 32px;
     height: 32px;
-    background: #4ECDC4;
-    border: 3px solid #000;
-    color: white;
+    background: var(--overall-blue, #049CD8);
+    border: 3px solid var(--mario-black, #000);
+    color: var(--mario-black, #000);
+    font-family: var(--font-body, sans-serif);
     font-weight: 700;
     cursor: pointer;
     font-size: 14px;
@@ -277,7 +288,7 @@
 }
 
 .webos-settings-btn:hover {
-    background: #45B7AA;
+    background: var(--nes-grey, #AAAAAA);
 }
 
 .webos-settings-btn:active {
@@ -287,17 +298,20 @@
 
 .webos-settings-content {
     padding: 16px;
-    background: #FFED4E;
+    background: var(--mushroom-cream, #FFCC99);
     flex: 1;
     overflow: auto;
-    color: #000;
+    color: var(--mario-black, #000);
     line-height: 1.6;
-    font-size: 13px;
+    font-size: 14px;
+    font-family: var(--font-body, sans-serif);
 }
 
 .webos-settings-content b {
-    color: #FF6B6B;
-    font-size: 16px;
+    font-family: var(--font-subheading, "DotGothic16", sans-serif);
+    color: var(--brick-brown, #C84C0C);
+    font-size: 15px;
+    font-weight: 400;
     display: block;
     margin-top: 12px;
     margin-bottom: 8px;
@@ -326,8 +340,8 @@
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    background: linear-gradient(to right, #FF6B6B, #FFA500);
-    border: 2px solid #000;
+    background: var(--mario-red, #E52521);
+    border: 2px solid var(--mario-black, #000);
 }
 
 .webos-settings-slider::-webkit-slider-thumb {
@@ -335,16 +349,16 @@
     appearance: none;
     width: 16px;
     height: 16px;
-    background: #4ECDC4;
-    border: 2px solid #000;
+    background: var(--coin-gold, #FBD000);
+    border: 2px solid var(--mario-black, #000);
     cursor: pointer;
 }
 
 .webos-settings-slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
-    background: #4ECDC4;
-    border: 2px solid #000;
+    background: var(--coin-gold, #FBD000);
+    border: 2px solid var(--mario-black, #000);
     cursor: pointer;
 }
 
@@ -359,9 +373,108 @@
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    max-width: none !important;
     height: calc(100vh - 7vh) !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+}
+
+/* Wallpaper picker */
+.webos-wallpaper-section {
+    margin: 8px 0 14px;
+}
+
+.webos-wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.webos-wallpaper-thumb {
+    border: 3px solid #000;
+    border-radius: 6px;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    font-family: inherit;
+}
+
+.webos-wallpaper-thumb img {
+    width: 100%;
+    height: 56px;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+.webos-wallpaper-thumb span {
+    font-size: 9px;
+    padding: 4px 2px;
+    text-align: center;
+    background: var(--mario-black, #000);
+    color: var(--coin-gold, #FBD000);
+    font-weight: 600;
+    font-family: var(--font-body, sans-serif);
+}
+
+.webos-wallpaper-thumb--active {
+    outline: 3px solid var(--pipe-green, #43B047);
+    box-shadow: 0 0 0 2px var(--mario-black, #000);
+}
+
+.webos-wallpaper-actions {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.webos-btn-import {
+    padding: 8px 14px;
+    font-family: var(--font-body, sans-serif);
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--overall-blue, #049CD8);
+    border: 3px solid var(--mario-black, #000);
+    color: var(--mario-black, #000);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.webos-btn-import:hover {
+    background: var(--nes-grey, #AAAAAA);
+}
+
+.webos-wallpaper-import-preview {
+    flex: 1;
+    min-width: 120px;
+    max-width: 200px;
+    border: 2px dashed #333;
+    border-radius: 6px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+.webos-wallpaper-import-preview img {
+    width: 100%;
+    max-height: 72px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 4px;
+}
+
+.webos-wallpaper-import-preview span {
+    font-size: 10px;
+    font-weight: 600;
+    color: #333;
 }
 
 /* Camera Window Styles */
@@ -369,19 +482,21 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    background: #E8F4F8;
-    border: 4px solid #000;
-    box-shadow: 0 4px 0 #FF6B6B;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 4px solid var(--mario-black, #000);
+    box-shadow: 6px 6px 0 var(--koopa-orange, #F83800);
     z-index: 100;
     font-family: 'Pixelify Sans', sans-serif;
 }
 
 .webos-camera-titlebar {
-    background: linear-gradient(90deg, #049CD8, #00D4FF);
-    color: #000;
-    padding: 8px 12px;
-    font-weight: 700;
-    font-size: 14px;
+    background: var(--overall-blue, #049CD8);
+    color: var(--mario-black, #000);
+    padding: 10px 12px;
+    font-family: var(--font-heading, "Press Start 2P", monospace);
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 1.5;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -401,7 +516,7 @@
 .webos-camera-content {
     flex: 1;
     padding: 16px;
-    background: #E8F4F8;
+    background: var(--mushroom-cream, #FFCC99);
     overflow: hidden;
     color: #000;
     display: flex;
@@ -417,8 +532,9 @@
 
 .webos-camera-content p {
     font-size: 13px;
-    color: #049CD8;
+    color: var(--brick-brown, #C84C0C);
     font-weight: 600;
+    font-family: var(--font-body, sans-serif);
 }
 
 .webos-camera-window.maximized {
@@ -436,19 +552,21 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    background: #F0E8D8;
-    border: 4px solid #000;
-    box-shadow: 0 4px 0 #43B047;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 4px solid var(--mario-black, #000);
+    box-shadow: 6px 6px 0 var(--pipe-green, #43B047);
     z-index: 100;
     font-family: 'Pixelify Sans', sans-serif;
 }
 
 .webos-file-manager-titlebar {
-    background: linear-gradient(90deg, #43B047, #5FD068);
-    color: #000;
-    padding: 8px 12px;
-    font-weight: 700;
-    font-size: 14px;
+    background: var(--pipe-green, #43B047);
+    color: var(--mario-black, #000);
+    padding: 10px 12px;
+    font-family: var(--font-heading, "Press Start 2P", monospace);
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 1.5;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -468,7 +586,7 @@
 .webos-file-manager-content {
     flex: 1;
     padding: 16px;
-    background: #F0E8D8;
+    background: var(--mushroom-cream, #FFCC99);
     overflow: auto;
     color: #000;
 }
@@ -487,8 +605,8 @@
     align-items: center;
     padding: 8px;
     margin-bottom: 6px;
-    background: #FFFACD;
-    border: 2px solid #43B047;
+    background: var(--coin-gold, #FBD000);
+    border: 3px solid var(--pipe-green, #43B047);
     border-radius: 3px;
     cursor: pointer;
     user-select: none;
@@ -497,20 +615,23 @@
 }
 
 .webos-folder-item:hover {
-    background: #FFFF99;
-    box-shadow: inset 0 2px 0 #000;
+    background: var(--mushroom-cream, #FFCC99);
+    box-shadow: inset 0 2px 0 var(--mario-black, #000);
 }
 
 .webos-folder-item-icon {
-    width: 16px;
-    height: 16px;
+    min-width: 28px;
+    height: 22px;
     margin-right: 8px;
-    background: #FBD000;
-    border: 1px solid #000;
+    padding: 0 4px;
+    background: var(--overall-blue, #049CD8);
+    border: 2px solid var(--mario-black, #000);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 9px;
+    font-family: var(--font-heading, "Press Start 2P", monospace);
+    color: var(--mario-black, #000);
 }
 
 .webos-folder-item-name {
@@ -519,7 +640,7 @@
 
 .webos-folder-item-count {
     font-size: 11px;
-    color: #666;
+    color: var(--brick-brown, #C84C0C);
 }
 
 .webos-file-manager-window.maximized {

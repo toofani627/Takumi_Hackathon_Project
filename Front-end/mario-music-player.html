@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Player</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&display=swap');
     </style>
+    <link rel="stylesheet" href="mario-theme.css">
     <link rel="stylesheet" href="mario-music-player.css">
 </head>
 <body class="mario-theme">
@@ -16,13 +17,13 @@
             <!-- Folder Picker -->
             <div class="folder-section">
                 <button id="folderPickerBtn" class="mario-btn mario-btn-primary">
-                    <span>📁</span> Pick Folder
+                    Pick folder
                 </button>
                 <div id="folderStatus" class="folder-status">
                     <span id="folderName">No folder selected</span>
                 </div>
                 <div id="loadingIndicator" class="loading-indicator" style="display: none;">
-                    <div class="spinner">⏳</div>
+                    <div class="spinner" aria-hidden="true"></div>
                     <span id="loadingText">Scanning...</span>
                 </div>
             </div>
@@ -96,11 +97,11 @@
         <!-- Right Panel - Playlist -->
         <div class="mario-right-panel">
             <div class="library-header">
-                <h2>🎵 Your Library</h2>
-                <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search...">
+                <h2>Library</h2>
+                <input type="text" id="searchBox" class="search-box" placeholder="Search…">
             </div>
             <div id="playlistItems" class="playlist">
-                <div class="empty-state">📂 Pick a folder to start</div>
+                <div class="empty-state">Pick a folder to start</div>
             </div>
             <div class="playlist-footer">
                 <span id="songCount">0 songs</span>

@@ -4,6 +4,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
 }
 
 html, body {
@@ -12,28 +13,28 @@ html, body {
 }
 
 body.mario-theme {
-    background: linear-gradient(135deg, #FF6B35 0%, #FFA500 50%, #FFD93D 100%);
-    font-family: 'Pixelify Sans', system-ui, sans-serif;
+    background: var(--overall-blue, #049CD8);
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
     font-weight: 400;
-    color: #333;
+    color: var(--mario-black, #000);
     overflow: hidden;
 }
 
 body.mario-theme h2 {
-    font-family: 'Press Start 2P', 'Pixelify Sans', system-ui, sans-serif;
+    font-family: var(--font-heading, 'Press Start 2P', monospace);
     font-weight: 400;
     letter-spacing: 0.04em;
 }
 
-/* Playbar / dock — deep Mario red (matches left panel), gold edge */
+/* Playbar / dock — flat palette only */
 :root {
-    --dock-bg: linear-gradient(165deg, #7a1818 0%, #551010 42%, #3d0b0b 100%);
-    --dock-border: rgba(255, 214, 90, 0.5);
-    --dock-text: #fffef5;
-    --vol-accent: #9b59b6;
-    --vol-track-empty: rgba(255, 255, 255, 0.35);
-    --seek-fill: #ffd700;
-    --seek-empty: rgba(255, 255, 255, 0.35);
+    --dock-bg: var(--brick-brown, #C84C0C);
+    --dock-border: var(--mario-black, #000);
+    --dock-text: var(--mushroom-cream, #FFCC99);
+    --vol-accent: var(--coin-gold, #FBD000);
+    --vol-track-empty: var(--nes-grey, #AAAAAA);
+    --seek-fill: var(--coin-gold, #FBD000);
+    --seek-empty: var(--nes-grey, #AAAAAA);
 }
 
 /* Main App Container - Full Screen */
@@ -48,8 +49,8 @@ body.mario-theme h2 {
 /* Left Panel - Player Controls */
 .mario-left-panel {
     flex: 1;
-    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
-    border-right: 6px solid #FFD700;
+    background: var(--mario-red, #E52521);
+    border-right: 6px solid var(--coin-gold, #FBD000);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -68,8 +69,9 @@ body.mario-theme h2 {
 .mario-btn {
     padding: 10px 15px;
     font-size: 0.95em;
+    font-family: var(--font-body, sans-serif);
     font-weight: bold;
-    border: 4px solid #000;
+    border: 4px solid var(--mario-black, #000);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
@@ -82,32 +84,33 @@ body.mario-theme h2 {
 }
 
 .mario-btn-primary {
-    background: linear-gradient(to bottom, #FFD700 0%, #FFA500 100%);
-    color: #000;
-    box-shadow: 0 4px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+    background: var(--coin-gold, #FBD000);
+    color: var(--mario-black, #000);
+    box-shadow: 0 4px 0 var(--mario-black, #000);
     width: 100%;
 }
 
 .mario-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 0 var(--mario-black, #000);
 }
 
 .mario-btn-primary:active {
     transform: translateY(2px);
-    box-shadow: 0 2px 0px #000, inset 0 2px 0px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 0 var(--mario-black, #000);
 }
 
 .folder-status {
     flex: 1;
     min-width: 200px;
     min-height: 3.25rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--mushroom-cream, #FFCC99);
     padding: 12px 14px;
-    border: 3px solid #000;
+    border: 3px solid var(--mario-black, #000);
     border-radius: 6px;
-    font-weight: bold;
-    color: #333;
+    font-family: var(--font-subheading, 'DotGothic16', sans-serif);
+    font-weight: 400;
+    color: var(--mario-black, #000);
     text-align: center;
 }
 
@@ -117,21 +120,25 @@ body.mario-theme h2 {
 
 /* Loading Indicator */
 .loading-indicator {
-    background: rgba(255, 215, 0, 0.9);
+    background: var(--coin-gold, #FBD000);
     padding: 8px 12px;
-    border: 3px solid #000;
+    border: 3px solid var(--mario-black, #000);
     border-radius: 6px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: bold;
-    color: #333;
+    font-family: var(--font-body, sans-serif);
+    font-weight: 700;
+    color: var(--mario-black, #000);
     animation: pulse 1s infinite;
 }
 
 .spinner {
-    font-size: 1.2em;
-    animation: spin 1s linear infinite;
+    width: 14px;
+    height: 14px;
+    border: 3px solid var(--mario-black, #000);
+    border-top-color: var(--overall-blue, #049CD8);
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes pulse {
@@ -184,8 +191,8 @@ body.mario-theme h2 {
 
 .bar {
     width: 5px;
-    background: linear-gradient(to top, #FFD700, #FFA500);
-    border: 2px solid #000;
+    background: var(--coin-gold, #FBD000);
+    border: 2px solid var(--mario-black, #000);
     border-radius: 2px;
     animation: audioBar 0.6s ease-in-out infinite;
 }
@@ -204,8 +211,8 @@ body.mario-theme h2 {
 /* Song Info Box */
 .song-info-box {
     min-height: 5rem;
-    background: rgba(255, 255, 255, 0.95);
-    border: 4px solid #FFD700;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 4px solid var(--coin-gold, #FBD000);
     border-radius: 6px;
     padding: 16px 18px;
     text-align: center;
@@ -217,14 +224,14 @@ body.mario-theme h2 {
 .song-title {
     font-size: 1.1em;
     font-weight: 700;
-    color: #FF0000;
+    color: var(--mario-red, #E52521);
     word-break: break-word;
 }
 
 .song-artist {
     font-size: 0.85em;
     font-weight: 500;
-    color: #0066cc;
+    color: var(--overall-blue, #049CD8);
     font-style: italic;
     margin-top: 5px;
 }
@@ -236,14 +243,12 @@ body.mario-theme h2 {
 
 .player-control-dock {
     background: var(--dock-bg);
-    border: 1px solid var(--dock-border);
-    border-radius: 10px;
+    border: 3px solid var(--dock-border);
+    border-radius: 8px;
     padding: 12px 14px 14px;
     margin-top: auto;
     flex-shrink: 0;
-    box-shadow:
-        0 4px 18px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 220, 120, 0.12);
+    box-shadow: 4px 4px 0 var(--mario-black, #000);
 }
 
 /* Three columns: center transport; right cluster can overlap transport when volume expands */
@@ -324,7 +329,7 @@ body.mario-theme h2 {
 }
 
 .player-time-range {
-    font-family: 'Pixelify Sans', system-ui, sans-serif;
+    font-family: var(--font-body, 'Pixelify Sans', system-ui, sans-serif);
     font-size: 0.78rem;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -466,9 +471,9 @@ body.mario-theme h2 {
     border-radius: 2px;
     background: linear-gradient(
         to right,
-        var(--seek-fill) 0%,
-        var(--seek-fill) var(--seek-pct, 0%),
-        var(--seek-empty) var(--seek-pct, 0%)
+        var(--seek-fill, #FBD000) 0%,
+        var(--seek-fill, #FBD000) var(--seek-pct, 0%),
+        var(--seek-empty, #AAAAAA) var(--seek-pct, 0%)
     );
 }
 
@@ -478,7 +483,8 @@ body.mario-theme h2 {
     width: 14px;
     height: 14px;
     margin-top: -5px;
-    background: #ffffff;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 2px solid var(--mario-black, #000);
     cursor: grab;
     border-radius: 50%;
     border: none;
@@ -504,7 +510,8 @@ body.mario-theme h2 {
 .seek-bar-main::-moz-range-thumb {
     width: 14px;
     height: 14px;
-    background: #ffffff;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 2px solid var(--mario-black, #000);
     cursor: grab;
     border-radius: 50%;
     border: none;
@@ -512,7 +519,7 @@ body.mario-theme h2 {
 
 .player-seek-row.is-seeking .seek-bar-main::-webkit-slider-thumb {
     transform: scale(1.08);
-    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.45);
+    box-shadow: 0 0 0 2px var(--coin-gold, #FBD000);
 }
 
 .player-seek-row--disabled {
@@ -525,8 +532,8 @@ body.mario-theme h2 {
     width: 35%;
     min-width: 280px;
     min-height: 0;
-    background: linear-gradient(160deg, #0d62c4 0%, #063d8a 55%, #052e66 100%);
-    border-left: 6px solid #ffd700;
+    background: var(--overall-blue, #049CD8);
+    border-left: 6px solid var(--coin-gold, #FBD000);
     padding: 16px 14px 18px;
     display: flex;
     flex-direction: column;
@@ -539,32 +546,33 @@ body.mario-theme h2 {
 }
 
 .library-header h2 {
-    color: #ffe566;
+    color: var(--coin-gold, #FBD000);
     font-size: clamp(0.62rem, 1.7vw, 0.78rem);
     margin: 0 0 10px;
     line-height: 1.5;
-    text-shadow: 2px 2px 0 #000;
+    text-shadow: 2px 2px 0 var(--mario-black, #000);
 }
 
 .search-box {
     width: 100%;
     box-sizing: border-box;
     padding: 10px 12px;
-    border: 3px solid #000;
+    border: 3px solid var(--mario-black, #000);
     border-radius: 8px;
     font-size: 0.92em;
+    font-family: var(--font-body, sans-serif);
     font-weight: 600;
     margin-bottom: 0;
-    background: rgba(230, 245, 255, 0.96);
+    background: var(--mushroom-cream, #FFCC99);
 }
 
 .search-box::placeholder {
-    color: #666;
+    color: var(--brick-brown, #C84C0C);
 }
 
 .search-box:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #ffd700, 0 0 12px rgba(255, 215, 0, 0.45);
+    box-shadow: 0 0 0 2px var(--mario-black, #000);
 }
 
 /* Scroll area: each row is flex-shrink:0 so height = content; gap separates rows */
@@ -580,16 +588,16 @@ body.mario-theme h2 {
     margin-top: 12px;
     margin-bottom: 12px;
     padding: 16px 14px;
-    background: rgba(0, 20, 60, 0.42);
-    border: 4px solid #000;
-    border-radius: 12px;
-    box-shadow: inset 0 3px 14px rgba(0, 0, 0, 0.35);
+    background: var(--brick-brown, #C84C0C);
+    border: 4px solid var(--mario-black, #000);
+    border-radius: 8px;
+    box-shadow: inset 2px 2px 0 var(--mario-black, #000);
 }
 
 .empty-state {
     flex-shrink: 0;
     text-align: center;
-    color: #ffe566;
+    color: var(--coin-gold, #FBD000);
     padding: 32px 16px;
     font-size: 1em;
     font-weight: 600;
@@ -608,11 +616,11 @@ body.mario-theme h2 {
     min-height: min-content;
     padding: 12px 16px;
     margin: 0;
-    background: linear-gradient(95deg, rgba(255, 220, 100, 0.95) 0%, rgba(255, 170, 60, 0.92) 100%);
-    border: 2px solid #000;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 3px solid var(--mario-black, #000);
     border-radius: 8px;
     cursor: pointer;
-    color: #111;
+    color: var(--mario-black, #000);
     font-weight: 600;
     transition: box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease;
     position: relative;
@@ -621,17 +629,14 @@ body.mario-theme h2 {
 
 .playlist-item:hover {
     z-index: 2;
-    filter: brightness(1.03);
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: 4px 4px 0 var(--mario-black, #000);
 }
 
 .playlist-item.active {
-    background: linear-gradient(95deg, #e01818 0%, #9a0e0e 100%);
-    color: #fff6a8;
-    border-color: #ffd700;
-    box-shadow:
-        0 0 0 2px #000,
-        0 0 14px rgba(255, 215, 0, 0.65);
+    background: var(--mario-red, #E52521);
+    color: var(--coin-gold, #FBD000);
+    border-color: var(--coin-gold, #FBD000);
+    box-shadow: 0 0 0 2px var(--mario-black, #000);
 }
 
 .playlist-item-title {
@@ -646,8 +651,8 @@ body.mario-theme h2 {
 }
 
 .playlist-item.active .playlist-item-title {
-    color: #fffef0;
-    text-shadow: 1px 1px 0 #000;
+    color: var(--coin-gold, #FBD000);
+    text-shadow: 1px 1px 0 var(--mario-black, #000);
 }
 
 .playlist-item-artist {
@@ -665,7 +670,7 @@ body.mario-theme h2 {
 
 .playlist-item.active .playlist-item-artist {
     opacity: 0.95;
-    color: #f5e6a8;
+    color: var(--mushroom-cream, #FFCC99);
 }
 
 /* Footer */
@@ -675,21 +680,20 @@ body.mario-theme h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.95);
-    border: 3px solid #ffd700;
+    background: var(--mushroom-cream, #FFCC99);
+    border: 3px solid var(--coin-gold, #FBD000);
     border-radius: 8px;
     padding: 10px 12px;
     text-align: center;
+    font-family: var(--font-body, sans-serif);
     font-weight: 700;
-    color: #222;
+    color: var(--mario-black, #000);
 }
 
 #songCount {
     display: inline-block;
-    background: linear-gradient(to right, #FF0000, #FFD700);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--mario-red, #E52521);
+    font-weight: 800;
 }
 
 /* Scrollbars */
@@ -703,13 +707,13 @@ body.mario-theme h2 {
 }
 
 .playlist::-webkit-scrollbar-thumb {
-    background: #FFD700;
+    background: var(--coin-gold, #FBD000);
     border-radius: 4px;
-    border: 2px solid #000;
+    border: 2px solid var(--mario-black, #000);
 }
 
 .playlist::-webkit-scrollbar-thumb:hover {
-    background: #FFA500;
+    background: var(--koopa-orange, #F83800);
 }
 
 .mario-left-panel::-webkit-scrollbar {
@@ -717,10 +721,10 @@ body.mario-theme h2 {
 }
 
 .mario-left-panel::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--mario-red, #E52521);
 }
 
 .mario-left-panel::-webkit-scrollbar-thumb {
-    background: #FFD700;
+    background: var(--coin-gold, #FBD000);
     border-radius: 3px;
 }

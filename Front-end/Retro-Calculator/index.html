@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro 8-Bit Calculator</title>
+    <!-- Pixel Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../mario-theme.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="app-background webos-embed">
+    <main>
+      <h1 class="retro-heading pixel-font neon-title retro-hero" aria-label="Retro 8-bit Themed">
+        RETRO 8-BIT THEMED
+      </h1>
+      <section class="calculator-container" aria-label="Calculator">
+        <header class="calculator-header">
+          <span class="header-title pixel-font">CALCULATOR</span>
+          <span class="header-tag pixel-font" id="userTag">WebOS</span>
+        </header>
+        <div class="calculator-display-container">
+          <div class="calculator-display">
+            <div class="operation-display pixel-font" id="opDisplay" aria-live="polite"></div>
+            <div class="main-display pixel-font" id="mainDisplay" aria-live="polite">0</div>
+          </div>
+        </div>
+        <div class="button-grid" role="group" aria-label="Calculator buttons">
+          <!-- Row 1 -->
+          <button class="button button-clear" data-action="clear" aria-label="All Clear">AC</button>
+          <button class="button button-operator" data-action="sign" aria-label="Toggle Sign">
+            ±
+          </button>
+          <button class="button button-operator" data-action="percent" aria-label="Percent">
+            %
+          </button>
+          <button class="button button-operator" data-operator="/" aria-label="Divide">÷</button>
+          <!-- Row 2 -->
+          <button class="button button-number" data-number="7">7</button>
+          <button class="button button-number" data-number="8">8</button>
+          <button class="button button-number" data-number="9">9</button>
+          <button class="button button-operator" data-operator="*" aria-label="Multiply">×</button>
+          <!-- Row 3 -->
+          <button class="button button-number" data-number="4">4</button>
+          <button class="button button-number" data-number="5">5</button>
+          <button class="button button-number" data-number="6">6</button>
+          <button class="button button-operator" data-operator="-" aria-label="Subtract">−</button>
+          <!-- Row 4 -->
+          <button class="button button-number" data-number="1">1</button>
+          <button class="button button-number" data-number="2">2</button>
+          <button class="button button-number" data-number="3">3</button>
+          <button class="button button-operator" data-operator="+" aria-label="Add">+</button>
+          <!-- Row 5 -->
+          <button class="button button-number button-zero" data-number="0">0</button>
+          <button class="button button-number" data-number="." aria-label="Decimal">.</button>
+          <button class="button button-equals" data-action="equals" aria-label="Equals">=</button>
+        </div>
+        <footer class="calculator-clock-container">
+          <div class="calculator-clock pixel-font" id="clock" aria-live="polite"></div>
+        </footer>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
