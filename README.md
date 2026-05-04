@@ -1,6 +1,6 @@
 # 🍄 Takumi Hackathon Project - Mario-Themed WebOS Interface
 
-A retro-inspired, Mario-themed web operating system featuring a collection of interactive applications built with vanilla JavaScript, HTML5, and CSS3.
+A retro-inspired- Mario-themed web operating system featuring a collection of interactive applications built with vanilla JavaScript, HTML5, and CSS3.
 
 ## 🎮 Project Overview
 
